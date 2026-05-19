@@ -10,7 +10,8 @@ import {
   LogOut,
   Bell,
   Sparkles,
-  BookOpen
+  BookOpen,
+  Network
 } from 'lucide-react';
 import { UserProfile } from '@/lib/types';
 
@@ -25,6 +26,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'text-indigo-400' },
     { id: 'feed', label: 'Senior Intel Feed', icon: Rss, color: 'text-emerald-400' },
+    { id: 'network', label: 'Institutional Network', icon: Network, color: 'text-cyan-400' },
     { id: 'ai-rec', label: 'AI Roadmap Engine', icon: Cpu, color: 'text-purple-400' },
     { id: 'chat', label: 'AI Mentor Chat', icon: MessageSquare, color: 'text-cyan-400' },
     { id: 'leaderboard', label: 'Senior Credibility', icon: Award, color: 'text-amber-400' },

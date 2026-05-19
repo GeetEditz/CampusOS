@@ -36,6 +36,27 @@ export default function IntelFeed({
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<OpportunityCategory | 'All'>('All');
   const [isAddingPost, setIsAddingPost] = useState(false);
+
+  // Dynamic Match Score calculation
+  const getMatchScore = (post: Post) => {
+    if (post.matchScore) return post.matchScore;
+    if (!post.tags || post.tags.length === 0) return 72;
+    
+    const matchedSkills = post.tags.filter(tag => 
+      user.skills.some(skill => 
+        skill.toLowerCase().includes(tag.toLowerCase()) || 
+        tag.toLowerCase().includes(skill.toLowerCase())
+      )
+    );
+    
+    const branchBonus = post.branch.toLowerCase().includes(user.branch.toLowerCase()) || post.branch === 'All Branches' ? 10 : 0;
+    const yearBonus = post.year === user.year ? 5 : 0;
+
+    const baseScore = 65;
+    const ratio = matchedSkills.length / post.tags.length;
+    const calculated = Math.round(baseScore + (ratio * 20) + branchBonus + yearBonus);
+    return Math.min(calculated, 98);
+  };
   
   // New Post Form State
   const [newTitle, setNewTitle] = useState('');
@@ -531,6 +552,9 @@ export default function IntelFeed({
                       </span>
                       <span className={`text-[8px] px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider ${getUrgencyBadge(post.urgency)}`}>
                         {post.urgency}
+                      </span>
+                      <span className="text-[8px] px-1.5 py-0.5 rounded font-black uppercase tracking-wider text-emerald-400 bg-emerald-950/30 border border-emerald-500/20 shadow-sm flex items-center gap-0.5">
+                        ⚡ {getMatchScore(post)}% Match
                       </span>
                       {post.deadline && (
                         <span className="text-[8px] text-pink-400 font-bold bg-pink-950/20 px-1.5 py-0.5 rounded border border-pink-500/10 flex items-center gap-0.5">

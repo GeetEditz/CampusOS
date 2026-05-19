@@ -45,6 +45,7 @@ export interface Post {
   commentsCount: number;
   createdAt: string;
   deadline?: string;
+  matchScore?: number;
 }
 
 export interface Comment {

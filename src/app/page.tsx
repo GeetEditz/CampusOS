@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 import { UserProfile, Post, Notification } from '@/lib/types';
-import { MOCK_POSTS, MOCK_NOTIFICATIONS, INITIAL_USER } from '@/lib/mockData';
+import { MOCK_POSTS, MOCK_NOTIFICATIONS, INITIAL_USER, DEMO_PRELOAD_STATE } from '@/lib/mockData';
 
 // Custom components
 import Sidebar from '@/components/Sidebar';
@@ -31,6 +31,7 @@ import AIMentor from '@/components/AIMentor';
 import Leaderboard from '@/components/Leaderboard';
 import OpportunityHeatmap from '@/components/OpportunityHeatmap';
 import ProfileSettings from '@/components/ProfileSettings';
+import NetworkVisualization from '@/components/NetworkVisualization';
 
 export default function Home() {
   // Authentication & Onboarding States
@@ -83,6 +84,14 @@ export default function Home() {
   const savePostsState = (updatedPosts: Post[]) => {
     setPosts(updatedPosts);
     localStorage.setItem('campusos_posts', JSON.stringify(updatedPosts));
+  };
+
+  const handleDemoLogin = () => {
+    saveProfileState(DEMO_PRELOAD_STATE.user);
+    savePostsState(DEMO_PRELOAD_STATE.posts);
+    setNotifications(DEMO_PRELOAD_STATE.notifications);
+    setIsAuthenticated(true);
+    localStorage.setItem('campusos_auth', 'true');
   };
 
   // Login handler
@@ -272,6 +281,8 @@ export default function Home() {
             setSelectedPost={setSelectedFeedPost}
           />
         );
+      case 'network':
+        return <NetworkVisualization />;
       case 'ai-rec':
         return <AIRecommendations user={userProfile} />;
       case 'chat':
@@ -339,6 +350,15 @@ export default function Home() {
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
                     <span>SSO Google Login</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDemoLogin}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-xs transition-all hover:scale-101 active:scale-99 border border-indigo-500/30 shadow-md shadow-indigo-950/20 mt-2"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" />
+                    <span>One-Click Demo/Judge Portal Login</span>
                   </button>
                 </div>
 
