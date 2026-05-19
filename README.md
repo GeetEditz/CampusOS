@@ -48,7 +48,7 @@ Access the live platform and walk through the student and institutional dashboar
 
 | Portal / Role | Email Address | Password | Access Details |
 | :--- | :--- | :--- | :--- |
-| **🎓 Student Portal** | `student@campusos.geetmore.live` | `test@123` | Access the student workspace, chat with the NVIDIA NIM AI Mentor, view the senior intelligence feed, and generate preparation roadmaps. |
+| **🎓 Student Portal** | `sahoba7268@bitmah.com` | `test@123` | Access the student workspace, chat with the NVIDIA NIM AI Mentor, view the senior intelligence feed, and generate preparation roadmaps. |
 | **🏢 Institutional Portal** | `hr.sakshisaini@gmail.com` | `test@123` | Monitor placement drive heatmaps, audit credentials, and manage administrative settings. |
 
 
