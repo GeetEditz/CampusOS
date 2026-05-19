@@ -77,7 +77,7 @@ export default function VideoDemoPage() {
           <HeroVideoDialog
             animationStyle="from-center"
             videoSrc={demoVideoUrl}
-            thumbnailSrc="/video-thumbnail.png"
+            thumbnailSrc="/THUMB.jpg"
             thumbnailAlt="CampusOS Dashboard Tour Thumbnail"
             className="w-full"
           />
