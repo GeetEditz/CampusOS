@@ -1,10 +1,11 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { UserProfile, Post, Notification, OpportunityCategory } from '@/lib/types';
 import { INITIAL_USER } from '@/lib/mockData';
 import { supabase } from '@/lib/supabase';
+import { toast } from '@/components/ui/use-toast';
 
 interface AccountInfo {
   password?: string;
@@ -65,7 +66,6 @@ interface AppContextType {
   setCommandSearchQuery: (val: string) => void;
   showShortcutHelper: boolean;
   setShowShortcutHelper: (val: boolean) => void;
-
   // Handlers
   saveProfileState: (profile: UserProfile) => void;
   savePostsState: (updatedPosts: Post[]) => void;
@@ -118,6 +118,42 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [commandSearchQuery, setCommandSearchQuery] = useState('');
   const [showShortcutHelper, setShowShortcutHelper] = useState(false);
+
+  // Credibility Score Listener for automatic toast notifications
+  const prevScoreRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (
+      userProfile.credibilityScore > 0 &&
+      prevScoreRef.current !== null && 
+      userProfile.credibilityScore > prevScoreRef.current
+    ) {
+      const difference = userProfile.credibilityScore - prevScoreRef.current;
+      toast({
+        title: `Credibility Score Boost!`,
+        description: `You just earned +${difference} points on your profile score. Keep verifying intel to level up!`,
+      });
+    }
+    prevScoreRef.current = userProfile.credibilityScore;
+  }, [userProfile.credibilityScore]);
+
+  // Badge rank-up listener to celebrate promotions
+  const prevBadgeRef = useRef<string | null | undefined>(null);
+
+  useEffect(() => {
+    if (
+      userProfile.badge &&
+      prevBadgeRef.current !== null && 
+      userProfile.badge !== prevBadgeRef.current
+    ) {
+      toast({
+        title: `🏆 Rank Promoted to ${userProfile.badge}!`,
+        description: `Congratulations! Your institutional status has escalated to ${userProfile.badge}. You have unlocked new visibility privileges.`,
+        variant: 'success'
+      });
+    }
+    prevBadgeRef.current = userProfile.badge;
+  }, [userProfile.badge]);
 
   // Load from local storage and check active Supabase session
   useEffect(() => {

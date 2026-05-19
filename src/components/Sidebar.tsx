@@ -10,7 +10,8 @@ import {
   LogOut,
   Sparkles,
   BookOpen,
-  Network
+  Network,
+  HelpCircle
 } from 'lucide-react';
 import { UserProfile } from '@/lib/types';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -100,8 +101,19 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
       </div>
 
       {/* Logout / Footer */}
-      <div className="flex flex-col gap-3">
-        <div className="border-t border-white/5 my-2"></div>
+      <div className="flex flex-col gap-1.5">
+        <div className="border-t border-white/5 my-1.5"></div>
+        <button
+          onClick={() => setActiveTab('help')}
+          className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all border-l-2 cursor-pointer ${
+            activeTab === 'help'
+              ? 'text-primary bg-primary/5 border-primary shadow-[inset_0_0_12px_rgba(99,102,241,0.05)]'
+              : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.02] border-transparent'
+          }`}
+        >
+          <HelpCircle className={`w-4 h-4 ${activeTab === 'help' ? 'text-primary' : 'text-zinc-500'}`} />
+          <span>Help & Credibility</span>
+        </button>
         <button
           onClick={onLogout}
           className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold text-zinc-400 hover:text-red-400 hover:bg-red-950/10 transition-all border-l-2 border-transparent cursor-pointer"

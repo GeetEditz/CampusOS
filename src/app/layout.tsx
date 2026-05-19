@@ -19,6 +19,7 @@ const geistMono = Geist_Mono({
 
 import { AppContextProvider } from "@/context/AppContext";
 import DashboardShell from "@/components/DashboardShell";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "CampusOS - AI College Opportunity Network",
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-black antialiased text-white">
         <AppContextProvider>
           <DashboardShell>{children}</DashboardShell>
+          <Toaster />
         </AppContextProvider>
       </body>
     </html>

@@ -9,7 +9,7 @@ export interface UserProfile {
   skills: string[];
   interests: string[];
   credibilityScore: number;
-  badge?: 'Guru' | 'Mentor' | 'Pioneer' | 'Rookie';
+  badge?: 'Guru' | 'Mentor' | 'Pioneer' | 'Rookie' | 'Contributor';
   ssoLinked?: boolean;
   ssoProvider?: 'google' | 'microsoft';
   aiRecommendations?: string;
@@ -92,4 +92,12 @@ export interface LeaderboardUser {
   badge: string;
   helpfulPostsCount: number;
   rank: number;
+}
+
+export interface TickerAnnouncement {
+  id: string;
+  icon: string;
+  message: string;
+  highlight_text?: string;
+  highlight_color?: string;
 }

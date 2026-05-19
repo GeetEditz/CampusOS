@@ -326,6 +326,22 @@ body {
 .animate-stagger-2 { animation: fadeIn 0.35s ease-out forwards; animation-delay: 0.12s; }
 .animate-stagger-3 { animation: fadeIn 0.35s ease-out forwards; animation-delay: 0.20s; }
 
+/* Slide-in toast keyframes */
+@keyframes slideInUp {
+  0% {
+    transform: translateY(100px) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-slideIn {
+  animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
