@@ -10,6 +10,8 @@ export interface UserProfile {
   interests: string[];
   credibilityScore: number;
   badge?: 'Guru' | 'Mentor' | 'Pioneer' | 'Rookie';
+  ssoLinked?: boolean;
+  ssoProvider?: 'google' | 'microsoft';
 }
 
 export type OpportunityCategory = 

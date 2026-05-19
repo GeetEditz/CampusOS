@@ -179,6 +179,17 @@ export default function ProfileSettings({ user, onUpdateProfile }: ProfileSettin
               </span>
             </div>
 
+            <div className="flex justify-between items-center bg-white/2 border border-white/5 p-3 rounded-xl">
+              <span className="text-xs text-zinc-400 font-semibold">SSO Verification</span>
+              <span className={`text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-wider ${
+                user.ssoLinked 
+                  ? 'text-emerald-400 bg-emerald-950/20 border-emerald-500/20' 
+                  : 'text-zinc-500 bg-zinc-900 border-zinc-800'
+              }`}>
+                {user.ssoLinked ? `✓ Linked (${user.ssoProvider})` : 'Unlinked'}
+              </span>
+            </div>
+
             <div className="text-[10px] leading-relaxed text-zinc-500 bg-white/3 border border-white/5 p-3 rounded-xl flex items-start gap-2">
               <Cpu className="w-4 h-4 text-indigo-400 shrink-0" />
               <p>Upvote rankings and contributing useful comments in the Senior Intel Feed boosts your institutional helpfulness points.</p>

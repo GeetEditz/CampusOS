@@ -30,6 +30,10 @@ export default function DashboardShell({ children }: DashboardShellProps) {
     setAuthStep,
     loginPath,
     setLoginPath,
+    authMode,
+    setAuthMode,
+    authError,
+    setAuthError,
     emailInput,
     setEmailInput,
     passwordInput,
@@ -109,303 +113,23 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         p.tags.some(t => t.toLowerCase().includes(commandSearchQuery.toLowerCase()))
       );
 
-  // 1. ONBOARDING / LOGIN GATE
+  // 1. DEDICATED LOGIN ROUTE RENDERING & ROUTE PROTECTION GATE
+  React.useEffect(() => {
+    if (!isAuthenticated && pathname !== '/login') {
+      router.push('/login');
+    }
+  }, [isAuthenticated, pathname, router]);
+
+  if (pathname === '/login') {
+    return <>{children}</>;
+  }
+
   if (!isAuthenticated) {
     return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center p-4 overflow-hidden font-sans z-50">
-        {/* Stellar Background */}
-        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-emerald-600/5 blur-[150px] pointer-events-none"></div>
-        <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] rounded-full bg-teal-600/5 blur-[150px] pointer-events-none"></div>
-        
-        {/* Multi-step Forms Panel */}
-        <div className="w-full max-w-xl glass-panel border border-white/10 rounded-2xl p-8 shadow-2xl relative z-10 flex flex-col gap-6">
-          
-          {/* Logo Header */}
-          <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-            <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-primary text-primary-foreground shadow-lg">
-              <BookOpen className="w-4 h-4" />
-              <div className="absolute -inset-1 rounded-xl bg-primary/30 blur opacity-40"></div>
-            </div>
-            <div>
-              <h1 className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
-                CampusOS
-              </h1>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">AI College Opportunity Network</p>
-            </div>
-          </div>
-
-          {/* STAGE 1: Standard Credential Gate */}
-          {authStep === 'login' && (
-            <div className="flex flex-col gap-6 animate-fadeIn">
-              <div className="flex flex-col gap-1 text-center sm:text-left">
-                <h2 className="text-lg font-black text-white">Unlock Senior Intelligence</h2>
-                <p className="text-zinc-400 text-xs mt-0.5">Democratizing unadvertised student referrals and faculty tips.</p>
-              </div>
-
-              {/* Role/Pathway selector tabs */}
-              <div className="grid grid-cols-3 gap-1.5 p-1 bg-white/[0.03] border border-white/5 rounded-xl">
-                <button
-                  type="button"
-                  onClick={() => setLoginPath('judge')}
-                  className={`py-2 text-[10px] uppercase font-black tracking-wider rounded-lg transition-all cursor-pointer ${
-                    loginPath === 'judge' 
-                      ? 'bg-primary text-primary-foreground shadow-md scale-[1.02]' 
-                      : 'text-zinc-400 hover:text-white hover:bg-white/[0.02]'
-                  }`}
-                >
-                  Judge Demo
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLoginPath('student')}
-                  className={`py-2 text-[10px] uppercase font-black tracking-wider rounded-lg transition-all cursor-pointer ${
-                    loginPath === 'student' 
-                      ? 'bg-primary text-primary-foreground shadow-md scale-[1.02]' 
-                      : 'text-zinc-400 hover:text-white hover:bg-white/[0.02]'
-                  }`}
-                >
-                  Student SSO
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLoginPath('institutional')}
-                  className={`py-2 text-[10px] uppercase font-black tracking-wider rounded-lg transition-all cursor-pointer ${
-                    loginPath === 'institutional' 
-                      ? 'bg-primary text-primary-foreground shadow-md scale-[1.02]' 
-                      : 'text-zinc-400 hover:text-white hover:bg-white/[0.02]'
-                  }`}
-                >
-                  Institutional
-                </button>
-              </div>
-
-              {/* View 1: Judge Demo Pathway */}
-              {loginPath === 'judge' && (
-                <div className="flex flex-col gap-3.5 p-4 rounded-xl bg-primary/3 border border-primary/10 relative overflow-hidden animate-fadeIn">
-                  <div className="absolute top-0 right-0 px-2 py-0.5 bg-primary/20 text-primary-foreground text-[8px] font-black uppercase tracking-widest rounded-bl-lg border-l border-b border-primary/20 animate-pulse">
-                    Recommended
-                  </div>
-                  <label className="text-[10px] text-primary font-bold uppercase tracking-wider">Fast Evaluation Pathway</label>
-                  <h3 className="text-xs font-bold text-white leading-relaxed">Instantly unlocks pre-loaded student portfolio, real-time metrics, & network visualizer.</h3>
-                  <Button
-                    type="button"
-                    onClick={handleDemoLogin}
-                    className="w-full flex items-center justify-center gap-2 h-10 rounded-xl bg-primary text-primary-foreground font-black text-xs transition-all hover:scale-101 active:scale-99 border border-primary/30 shadow-md shadow-emerald-950/20 hover:opacity-90 mt-2"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-                    <span>One-Click Demo/Judge Portal Login</span>
-                  </Button>
-                  <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
-                    ⚡ Bypasses onboarding to instantly demonstrate placements, compatibility indices, and SVG active directory. Ideal for rapid hackathon pitches.
-                  </p>
-                </div>
-              )}
-
-              {/* View 2: Student SSO Pathway */}
-              {loginPath === 'student' && (
-                <div className="flex flex-col gap-3.5 p-4 rounded-xl bg-white/[0.015] border border-white/5 relative overflow-hidden animate-fadeIn">
-                  <div className="absolute top-0 right-0 px-2 py-0.5 bg-zinc-800 text-zinc-400 text-[8px] font-black uppercase tracking-widest rounded-bl-lg border-l border-b border-zinc-700/50">
-                    AI Onboarding Flow
-                  </div>
-                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">SSO Sign-In</label>
-                  <h3 className="text-xs font-bold text-white leading-relaxed">Launches custom profile onboarding fields and initializes AI opportunities generator.</h3>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setEmailInput('arjun.mehta@university.edu');
-                      setAuthStep('onboarding');
-                    }}
-                    className="w-full flex items-center justify-center gap-2.5 h-10 rounded-xl bg-white text-black font-semibold text-xs transition-all hover:bg-zinc-200 active:scale-98 mt-2"
-                  >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24">
-                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                    </svg>
-                    <span>SSO Google Login</span>
-                  </Button>
-                  <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
-                    💡 Displays how the campus crawler and NVIDIA NIM AI build customized career matches for newly registered users.
-                  </p>
-                </div>
-              )}
-
-              {/* View 3: Institutional Pathway */}
-              {loginPath === 'institutional' && (
-                <form onSubmit={handleLogin} className="flex flex-col gap-4 animate-fadeIn">
-                  <div className="flex flex-col gap-3 p-4 rounded-xl bg-white/[0.015] border border-white/5 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 px-2 py-0.5 bg-zinc-800 text-zinc-400 text-[8px] font-black uppercase tracking-widest rounded-bl-lg border-l border-b border-zinc-700/50">
-                      College Directory
-                    </div>
-                    <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Enterprise Credentials</label>
-                    
-                    <div className="flex flex-col gap-1.5 mt-2">
-                      <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Institutional Email</label>
-                      <div className="relative">
-                        <Mail className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
-                        <Input 
-                          type="email" 
-                          value={emailInput}
-                          onChange={e => setEmailInput(e.target.value)}
-                          placeholder="e.g. arjun@university.edu" 
-                          className="w-full bg-white/3 border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white glass-input placeholder-zinc-600"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Portal Password</label>
-                      <div className="relative">
-                        <LockKeyhole className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
-                        <Input 
-                          type="password" 
-                          value={passwordInput}
-                          onChange={e => setPasswordInput(e.target.value)}
-                          placeholder="••••••••" 
-                          className="w-full bg-white/3 border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white glass-input placeholder-zinc-600"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      type="submit"
-                      className="glow-btn w-full h-10 rounded-xl font-bold text-xs text-white flex items-center justify-center gap-2 hover:scale-101 transition-all"
-                    >
-                      <span>Access Network Portal</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Button>
-                    <p className="text-[10px] text-zinc-600 font-medium text-center leading-relaxed">
-                      🔐 Standard credentials login matching university profiles in the database.
-                    </p>
-                  </div>
-                </form>
-              )}
-            </div>
-          )}
-
-          {/* STAGE 2: Core Onboarding */}
-          {authStep === 'onboarding' && (
-            <form onSubmit={handleOnboardingComplete} className="flex flex-col gap-5 animate-fadeIn">
-              <div className="flex flex-col gap-1 text-center sm:text-left">
-                <h2 className="text-lg font-black text-white">Scan Student Profile Parameters</h2>
-                <p className="text-zinc-400 text-xs">This feeds the NVIDIA NIM AI scanner to generate matching career paths.</p>
-              </div>
-
-              <div className="flex flex-col gap-4 border-y border-white/5 py-4 overflow-y-auto max-h-[350px] pr-1">
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Full Name</label>
-                  <Input 
-                    type="text" 
-                    value={onboardName}
-                    onChange={e => setOnboardName(e.target.value)}
-                    placeholder="e.g. Arjun Mehta" 
-                    className="w-full bg-white/3 border border-white/5 rounded-xl p-2.5 text-xs text-white glass-input"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Eligible Department</label>
-                    <select
-                      value={onboardBranch}
-                      onChange={e => setOnboardBranch(e.target.value)}
-                      className="bg-zinc-950 border border-white/5 rounded-xl p-2.5 text-xs text-zinc-300 font-semibold"
-                    >
-                      <option value="Computer Science & Engineering">Computer Science (CSE)</option>
-                      <option value="Electronics & Communication">Electronics (ECE)</option>
-                      <option value="Information Technology">Information Tech (IT)</option>
-                      <option value="Electrical Engineering">Electrical (EE)</option>
-                      <option value="Mechanical Engineering">Mechanical (ME)</option>
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">B.Tech Year</label>
-                    <Input 
-                      type="number" 
-                      value={onboardYear}
-                      onChange={e => setOnboardYear(Number(e.target.value))}
-                      min={1}
-                      max={4}
-                      className="w-full bg-white/3 border border-white/5 rounded-xl p-2.5 text-xs text-white glass-input"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Skills tags */}
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Skills tags</label>
-                  <div className="flex gap-2">
-                    <Input 
-                      type="text" 
-                      value={newSkillInput}
-                      onChange={e => setNewSkillInput(e.target.value)}
-                      placeholder="e.g. PyTorch, React, Java" 
-                      className="flex-grow bg-white/3 border border-white/5 rounded-xl p-2 text-xs text-white glass-input"
-                    />
-                    <button 
-                      type="button" 
-                      onClick={handleAddSkillOnboard}
-                      className="bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-200 rounded-xl px-3 py-1.5 text-xs font-semibold cursor-pointer"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {onboardSkills.map(s => (
-                      <Badge key={s} variant="secondary" className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/20 font-bold text-[10px] px-2 py-0.5 rounded-lg">
-                        {s}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Interests tags */}
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Primary Interests</label>
-                  <div className="flex gap-2">
-                    <Input 
-                      type="text" 
-                      value={newInterestInput}
-                      onChange={e => setNewInterestInput(e.target.value)}
-                      placeholder="e.g. AI Research, Placements" 
-                      className="flex-grow bg-white/3 border border-white/5 rounded-xl p-2 text-xs text-white glass-input"
-                    />
-                    <button 
-                      type="button" 
-                      onClick={handleAddInterestOnboard}
-                      className="bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-200 rounded-xl px-3 py-1.5 text-xs font-semibold cursor-pointer"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {onboardInterests.map(i => (
-                      <Badge key={i} variant="secondary" className="bg-teal-950/40 text-teal-400 border border-teal-500/20 font-bold text-[10px] px-2 py-0.5 rounded-lg">
-                        {i}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="glow-btn w-full h-10 rounded-xl font-bold text-xs text-white flex items-center justify-center gap-2 hover:scale-101 transition-all"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Initialize AI Operating System</span>
-              </Button>
-            </form>
-          )}
-
+      <div className="fixed inset-0 bg-[#030303] flex items-center justify-center font-sans z-50 text-zinc-500 text-xs">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-5 h-5 rounded-full border border-primary border-t-transparent animate-spin"></div>
+          <span className="font-extrabold text-[10px] text-zinc-400 uppercase tracking-widest animate-pulse">Initializing Security Session...</span>
         </div>
       </div>
     );
