@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { UserProfile, Post, Notification } from '@/lib/types';
 import { MOCK_POSTS, MOCK_NOTIFICATIONS, INITIAL_USER, DEMO_PRELOAD_STATE } from '@/lib/mockData';
+import { supabase } from '@/lib/supabase';
 
 interface AccountInfo {
   password?: string;
@@ -118,7 +119,7 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
   const [commandSearchQuery, setCommandSearchQuery] = useState('');
   const [showShortcutHelper, setShowShortcutHelper] = useState(false);
 
-  // Load from local storage and pre-seed mock accounts registry
+  // Load from local storage and check active Supabase session
   useEffect(() => {
     const cachedProfile = localStorage.getItem('campusos_profile');
     const cachedPosts = localStorage.getItem('campusos_posts');
@@ -138,17 +139,90 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
     if (cachedRegistry) {
       setAccountsRegistry(JSON.parse(cachedRegistry));
     } else {
-      // Start with a completely clean local database. No preloaded/dummy credentials!
       const initialRegistry: Record<string, AccountInfo> = {};
       setAccountsRegistry(initialRegistry);
       localStorage.setItem('campusos_accounts_v2', JSON.stringify(initialRegistry));
     }
+
+    // Connect and verify active Supabase session in the background
+    const checkSupabaseSession = async () => {
+      if (!supabase) {
+        console.log('[Supabase Auth] ℹ️ Supabase not configured in .env.local, falling back to Local Storage database emulation.');
+        return;
+      }
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          console.log('[Supabase Auth] 🚀 Active cloud session found for user:', session.user.email);
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+          if (error) {
+            console.error('[Supabase Auth] ❌ Error fetching session user profile from database:', error.message);
+          } else if (profile) {
+            console.log('[Supabase Auth] 💎 Loaded session profile details from database:', profile);
+            const mappedProfile: UserProfile = {
+              id: profile.id,
+              name: profile.name,
+              email: profile.email,
+              avatarUrl: profile.avatar_url,
+              role: profile.role as 'student' | 'senior' | 'admin',
+              branch: profile.branch,
+              year: profile.year,
+              skills: profile.skills || [],
+              interests: profile.interests || [],
+              credibilityScore: profile.credibility_score || 0,
+              badge: profile.badge as 'Guru' | 'Mentor' | 'Pioneer' | 'Rookie',
+              ssoLinked: profile.sso_linked || false,
+              ssoProvider: profile.sso_provider as 'google' | 'microsoft'
+            };
+            setUserProfile(mappedProfile);
+            setIsAuthenticated(true);
+            localStorage.setItem('campusos_auth', 'true');
+            localStorage.setItem('campusos_profile', JSON.stringify(mappedProfile));
+          }
+        }
+      } catch (err) {
+        console.error('[Supabase Auth] ❌ Unexpected session check error:', err);
+      }
+    };
+
+    checkSupabaseSession();
   }, []);
 
   // Sync state helpers
-  const saveProfileState = (profile: UserProfile) => {
+  const saveProfileState = async (profile: UserProfile) => {
     setUserProfile(profile);
     localStorage.setItem('campusos_profile', JSON.stringify(profile));
+
+    if (supabase) {
+      console.log(`[CampusOS Auth] 💾 Syncing updated profile details to Supabase for: ${profile.id}`);
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            name: profile.name,
+            branch: profile.branch,
+            year: profile.year,
+            skills: profile.skills,
+            interests: profile.interests,
+            sso_linked: profile.ssoLinked || false,
+            sso_provider: profile.ssoProvider || null
+          })
+          .eq('id', profile.id);
+
+        if (error) {
+          console.error('[Supabase Sync] ❌ Error syncing profile details updates:', error.message);
+        } else {
+          console.log('[Supabase Sync] ✅ Profile details successfully updated in Supabase database!');
+        }
+      } catch (err) {
+        console.error('[Supabase Sync] ❌ Unexpected profile sync error:', err);
+      }
+    }
   };
 
   const savePostsState = (updatedPosts: Post[]) => {
@@ -166,30 +240,75 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
   };
 
   // Sleek Sign-In vs Sign-Up Authentication Handlers
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
 
+    console.log(`[CampusOS Auth] 🔑 Authentication triggered. Mode: ${authMode}, Email: ${emailInput}`);
+
     if (!emailInput.trim()) {
       setAuthError('Email is required.');
+      console.warn('[CampusOS Auth] ⚠️ Authentication failed: Missing email address.');
       return;
     }
 
     const emailKey = emailInput.toLowerCase().trim();
 
     if (authMode === 'signin') {
-      const account = accountsRegistry[emailKey];
-      if (!account) {
-        setAuthError("Account not found. Switch to 'Sign Up' above to register your college profile!");
+      if (!supabase) {
+        setAuthError('Supabase config is missing from your environment variables.');
         return;
       }
-      if (passwordInput && account.password !== passwordInput) {
-        setAuthError("Incorrect password. Please verify your credentials.");
+
+      console.log(`[CampusOS Auth] 🔍 Signing in user via Supabase Auth: ${emailInput}`);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: emailInput.trim(),
+        password: passwordInput
+      });
+
+      if (error) {
+        console.warn('[CampusOS Auth] ⚠️ Supabase Sign-In failed:', error.message);
+        setAuthError(error.message);
         return;
       }
-      
-      // Load user profile and bypass onboarding on correct password matches
-      saveProfileState(account.profile);
+
+      console.log('[CampusOS Auth] ✅ Supabase Auth sign-in successful. Fetching user profile...');
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.warn('[CampusOS Auth] ⚠️ Error loading profile details from database:', profileError.message);
+        setAuthError(profileError.message);
+        return;
+      }
+
+      if (!profile) {
+        console.warn('[CampusOS Auth] ⚠️ Profile record missing in profiles table. Transitioning to onboarding.');
+        setAuthStep('onboarding');
+        return;
+      }
+
+      const mappedProfile: UserProfile = {
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        avatarUrl: profile.avatar_url,
+        role: profile.role as 'student' | 'senior' | 'admin',
+        branch: profile.branch,
+        year: profile.year,
+        skills: profile.skills || [],
+        interests: profile.interests || [],
+        credibilityScore: profile.credibility_score || 0,
+        badge: profile.badge as 'Guru' | 'Mentor' | 'Pioneer' | 'Rookie',
+        ssoLinked: profile.sso_linked || false,
+        ssoProvider: profile.sso_provider as 'google' | 'microsoft'
+      };
+
+      console.log(`[CampusOS Auth] ✅ Profiles successfully loaded for user: ${mappedProfile.name}. Loading workspace dashboard...`);
+      saveProfileState(mappedProfile);
       setIsAuthenticated(true);
       localStorage.setItem('campusos_auth', 'true');
       router.push('/dashboard');
@@ -198,27 +317,53 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
       const newAlert: Notification = {
         id: `notif-${Date.now()}`,
         title: 'Logged in successfully!',
-        message: `Welcome back to CampusOS, ${account.profile.name}! Your network index is active.`,
+        message: `Welcome back to CampusOS, ${mappedProfile.name}! Your network index is active.`,
         type: 'alert',
         createdAt: new Date().toISOString(),
         read: false
       };
       setNotifications(prev => [newAlert, ...prev]);
     } else {
+      console.log(`[CampusOS Auth] 🚀 Initiating registration flow. Redirecting to onboarding questionnaire for: ${emailKey}`);
       // Transition to onboarding fields to create the profile details
       setAuthStep('onboarding');
     }
   };
 
-  // Complete profile onboarding and register inside local accounts DB
-  const handleOnboardingComplete = (e: React.FormEvent) => {
+  // Complete profile onboarding and register inside local accounts DB and remote Supabase
+  const handleOnboardingComplete = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!onboardName.trim()) return;
+    if (!onboardName.trim()) {
+      console.warn('[CampusOS Auth] Onboarding failed: Profile name is empty.');
+      return;
+    }
 
     const emailKey = (emailInput || 'student@university.edu').toLowerCase().trim();
+    console.log(`[CampusOS Auth] 📝 Submitting profile onboarding forms. Email Key: ${emailKey}, Name: ${onboardName}`);
+
+    let userId = `u-${Date.now()}`;
+
+    if (supabase) {
+      console.log(`[CampusOS Auth] 🌐 Registering new user via Supabase Auth: ${emailInput}`);
+      const { data, error } = await supabase.auth.signUp({
+        email: emailInput.trim(),
+        password: passwordInput || 'password'
+      });
+
+      if (error) {
+        console.warn('[CampusOS Auth] ⚠️ Supabase Sign-Up failed:', error.message);
+        setAuthError(error.message);
+        return;
+      }
+
+      if (data.user?.id) {
+        userId = data.user.id;
+        console.log(`[CampusOS Auth] ✅ Supabase Auth signup successful. Generated cloud user ID: ${userId}`);
+      }
+    }
 
     const newProfile: UserProfile = {
-      id: `u-${Date.now()}`,
+      id: userId,
       name: onboardName,
       email: emailInput || 'student@university.edu',
       role: loginPath === 'institutional' ? 'admin' : 'student',
@@ -227,12 +372,41 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
       skills: onboardSkills,
       interests: onboardInterests,
       credibilityScore: 42,
-      badge: 'Rookie'
+      badge: 'Rookie',
+      ssoLinked: false
     };
 
+    console.log('[CampusOS Auth] 💎 Generating newly registered profile object:', newProfile);
+    
+    // Save to remote Supabase Database Profiles Table!
+    if (supabase) {
+      console.log(`[CampusOS Auth] 🗄️ Saving public.profiles record inside remote Supabase database...`);
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: newProfile.id,
+        name: newProfile.name,
+        email: newProfile.email,
+        role: newProfile.role,
+        branch: newProfile.branch,
+        year: newProfile.year,
+        skills: newProfile.skills,
+        interests: newProfile.interests,
+        credibility_score: newProfile.credibilityScore,
+        badge: newProfile.badge,
+        sso_linked: false
+      });
+
+      if (profileError) {
+        console.error('[CampusOS Auth] ❌ Error inserting profile row in Supabase profiles table:', profileError.message);
+        setAuthError(profileError.message);
+        return;
+      }
+      console.log('[CampusOS Auth] 🚀 Successfully synced new profile record inside remote Supabase table!');
+    }
+
+    // Update active profile state
     saveProfileState(newProfile);
 
-    // Save details to the accounts registry in local storage
+    // Save details to the accounts registry in local storage (fallback check)
     const updatedRegistry = {
       ...accountsRegistry,
       [emailKey]: {
@@ -242,29 +416,54 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
     };
     setAccountsRegistry(updatedRegistry);
     localStorage.setItem('campusos_accounts_v2', JSON.stringify(updatedRegistry));
+    console.log(`[CampusOS Auth] 💾 Saved fallback credentials database registry under "campusos_accounts_v2".`);
 
     setIsAuthenticated(true);
     localStorage.setItem('campusos_auth', 'true');
+    console.log('[CampusOS Auth] 🌟 Registration pipeline completed. Welcome aboard!');
     router.push('/dashboard');
   };
 
   // Sign out handler
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    console.log(`[CampusOS Auth] 🚪 Sign-Out triggered. Cleared active session user: ${userProfile.name}`);
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     setIsAuthenticated(false);
     setAuthStep('login');
     setAuthError('');
     localStorage.removeItem('campusos_auth');
+    localStorage.removeItem('campusos_profile');
     router.push('/dashboard');
   };
 
   // Link University SSO Identity after authenticating
-  const handleLinkSSO = (provider: 'google' | 'microsoft') => {
+  const handleLinkSSO = async (provider: 'google' | 'microsoft') => {
+    console.log(`[CampusOS Auth] 🔐 SSO Linking action triggered. Provider: ${provider}, Current User: ${userProfile.name}`);
     const updatedProfile: UserProfile = {
       ...userProfile,
       ssoLinked: true,
       ssoProvider: provider
     };
     saveProfileState(updatedProfile);
+
+    if (supabase) {
+      console.log(`[CampusOS Auth] 💾 Syncing SSO status to Supabase profiles for user: ${userProfile.id}`);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          sso_linked: true,
+          sso_provider: provider
+        })
+        .eq('id', userProfile.id);
+
+      if (error) {
+        console.error('[CampusOS Auth] ❌ Error syncing SSO status to Supabase:', error.message);
+      } else {
+        console.log('[CampusOS Auth] ✅ SSO status successfully synced in remote database!');
+      }
+    }
 
     // Save updated profile back to registry if email key exists
     const emailKey = userProfile.email.toLowerCase().trim();
@@ -278,6 +477,7 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
       };
       setAccountsRegistry(updatedRegistry);
       localStorage.setItem('campusos_accounts_v2', JSON.stringify(updatedRegistry));
+      console.log(`[CampusOS Auth] 💾 Synced SSO connected status back into fallback accounts database registry for: ${emailKey}`);
     }
 
     // Trigger toast notification
@@ -290,6 +490,7 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
       read: false
     };
     setNotifications(prev => [newAlert, ...prev]);
+    console.log(`[CampusOS Auth] 🔔 Pushed alert notification: "${newAlert.title}"`);
   };
 
   // Feed handlers

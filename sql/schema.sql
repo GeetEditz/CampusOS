@@ -280,3 +280,10 @@ VALUES (
   '33333333-3333-3333-3333-333333333333',
   'I went to his office last Thursday. He gave me the link to a private repo with the coding challenge. It is basically writing a custom loss function in PyTorch for sequence prediction!'
 ) ON CONFLICT DO NOTHING;
+
+--------------------------------------------------------------------------------
+-- SCHEMA MIGRATION: ADD SSO COLUMNS (RUN THIS ON YOUR EXISTING POSTGRES DATABASE)
+--------------------------------------------------------------------------------
+ALTER TABLE public.profiles 
+  ADD COLUMN IF NOT EXISTS sso_linked BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS sso_provider TEXT CHECK (sso_provider IN ('google', 'microsoft'));
