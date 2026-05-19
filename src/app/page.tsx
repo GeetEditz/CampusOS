@@ -372,7 +372,7 @@ export default function Home() {
   // ONBOARDING GATE
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden font-sans">
+      <div className="fixed inset-0 bg-black flex items-center justify-center p-4 overflow-hidden font-sans z-50">
         {/* Stellar Background */}
         <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-indigo-600/10 blur-[150px] pointer-events-none"></div>
         <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] rounded-full bg-purple-600/10 blur-[150px] pointer-events-none"></div>
