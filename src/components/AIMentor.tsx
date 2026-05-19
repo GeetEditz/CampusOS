@@ -73,7 +73,7 @@ What challenge can I help you bypass today?`,
 
     fetchChatHistory();
   }, [user.id]);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const starterQuestions = [
     "How do I apply for Dr. Verma\'s PyTorch challenge?",
@@ -83,8 +83,10 @@ What challenge can I help you bypass today?`,
   ];
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages, loading]);
 
   const handleSendMessage = async (text: string) => {
     if (!text.trim() || loading) return;
@@ -191,15 +193,15 @@ What challenge can I help you bypass today?`,
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto p-1 h-full animate-fadeIn">
+    <div className="flex flex-col gap-4 w-full max-w-7xl mx-auto p-0.5 flex-1 min-h-0 animate-fadeIn">
       
       {/* Header section */}
-      <div className="flex justify-between items-center border-b border-white/5 pb-4 shrink-0">
+      <div className="flex justify-between items-center border-b border-white/5 pb-3 shrink-0">
         <div>
           <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
             AI Mentor Assistant
           </h2>
-          <p className="text-zinc-400 text-xs mt-1">
+          <p className="text-zinc-400 text-xs mt-0.5">
             Institutional expert scanning unadvertised internship pathways and faculty resources in real time.
           </p>
         </div>
@@ -211,13 +213,13 @@ What challenge can I help you bypass today?`,
       </div>
 
       {/* Main chat window layout */}
-      <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-6">
+      <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-4">
         
         {/* Chat area */}
-        <div className="flex-1 flex flex-col glass-panel border border-white/5 rounded-2xl overflow-hidden relative">
+        <div className="flex-1 flex flex-col glass-panel border border-white/5 rounded-2xl overflow-hidden relative min-h-0">
           
           {/* Message log */}
-          <div className="flex-grow overflow-y-auto p-5 flex flex-col gap-4 scrollbar-none">
+          <div ref={chatContainerRef} className="flex-grow overflow-y-auto p-5 flex flex-col gap-4 scrollbar-none min-h-0">
             {messages.map((msg) => (
               <div 
                 key={msg.id}
@@ -263,7 +265,6 @@ What challenge can I help you bypass today?`,
                 </div>
               </div>
             )}
-            <div ref={scrollRef}></div>
           </div>
 
           {/* Form input */}

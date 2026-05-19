@@ -871,6 +871,11 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
           else if (k === 'h') { router.push('/heatmap'); }
           else if (k === 'p') { router.push('/profile'); }
           else if (k === 'v') { router.push('/admin-panel'); }
+          else if (k === 'm') { router.push('/admin-posts'); }
+          else if (k === 'b') { router.push('/admin-placement'); }
+          else if (k === 'u') { router.push('/admin-notifications'); }
+          else if (k === 't') { router.push('/admin-ticker'); }
+          else if (k === 'r') { router.push('/admin-roles'); }
           
           window.removeEventListener('keydown', handleSequence);
         };

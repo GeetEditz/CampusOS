@@ -194,8 +194,8 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         </div>
 
         {/* Dynamic content rendering container */}
-        <div className={`p-6 flex-1 min-h-0 w-full animate-stagger-1 ${pathname === '/chat' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
-          <div className="w-full h-full">
+        <div className={`p-6 flex-1 min-h-0 w-full animate-stagger-1 ${pathname === '/chat' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
+          <div className="w-full flex-1 min-h-0 flex flex-col">
             {children}
           </div>
         </div>
@@ -261,13 +261,50 @@ export default function DashboardShell({ children }: DashboardShellProps) {
                       <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + a</span>
                     </button>
                     {userProfile.role === 'admin' && (
-                      <button 
-                        onClick={() => { setIsCommandPaletteOpen(false); router.push('/admin-panel'); }}
-                        className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
-                      >
-                        <span>Go to Verification Hub</span>
-                        <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + v</span>
-                      </button>
+                      <>
+                        <button 
+                          onClick={() => { setIsCommandPaletteOpen(false); router.push('/admin-panel'); }}
+                          className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
+                        >
+                          <span>Go to Verification Directory</span>
+                          <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + v</span>
+                        </button>
+                        <button 
+                          onClick={() => { setIsCommandPaletteOpen(false); router.push('/admin-posts'); }}
+                          className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
+                        >
+                          <span>Go to Intel Feed Moderation</span>
+                          <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + m</span>
+                        </button>
+                        <button 
+                          onClick={() => { setIsCommandPaletteOpen(false); router.push('/admin-placement'); }}
+                          className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
+                        >
+                          <span>Go to NIM Placement Bulletin</span>
+                          <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + b</span>
+                        </button>
+                        <button 
+                          onClick={() => { setIsCommandPaletteOpen(false); router.push('/admin-notifications'); }}
+                          className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
+                        >
+                          <span>Go to Notification Broadcaster</span>
+                          <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + u</span>
+                        </button>
+                        <button 
+                          onClick={() => { setIsCommandPaletteOpen(false); router.push('/admin-ticker'); }}
+                          className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
+                        >
+                          <span>Go to Live Ticker Control</span>
+                          <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + t</span>
+                        </button>
+                        <button 
+                          onClick={() => { setIsCommandPaletteOpen(false); router.push('/admin-roles'); }}
+                          className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
+                        >
+                          <span>Go to Role & Promotion Manager</span>
+                          <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + r</span>
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>

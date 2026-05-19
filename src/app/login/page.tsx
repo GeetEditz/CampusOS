@@ -91,9 +91,10 @@ export default function LoginPage() {
         
         {/* Logo Header */}
         <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-          <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-primary text-primary-foreground shadow-lg">
-            <BookOpen className="w-4 h-4" />
-            <div className="absolute -inset-1 rounded-xl bg-primary/30 blur opacity-40"></div>
+          <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-white/5 border border-white/10 shadow-lg">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/white-logo-no-bg.png" alt="CampusOS Logo" className="w-6 h-6 object-contain" />
+            <div className="absolute -inset-1 rounded-xl bg-white/10 blur opacity-30"></div>
           </div>
           <div>
             <h1 className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">

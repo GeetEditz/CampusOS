@@ -669,88 +669,7 @@ export default function AdminPanel({ defaultTab }: AdminPanelProps = {}) {
       </div>
 
       {/* Admin Operations Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        {/* Left Side Operations Panel Selector */}
-        <div className="lg:col-span-3 flex flex-col gap-2 p-1.5 bg-white/[0.015] border border-white/5 rounded-xl">
-          <button
-            onClick={() => router.push('/admin-panel')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
-              activeTab === 'students'
-                ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.02]'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Student Verification Directory</span>
-          </button>
-
-          <button
-            onClick={() => router.push('/admin-panel?tab=posts')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
-              activeTab === 'posts'
-                ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.02]'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span>Intel Feed Moderation</span>
-          </button>
-
-          <button
-            onClick={() => router.push('/admin-panel?tab=ai-placement')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
-              activeTab === 'ai-placement'
-                ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.02]'
-            }`}
-          >
-            <Brain className="w-4 h-4 text-emerald-400 animate-pulse" />
-            <span className="flex-grow">NIM Placement Bulletin</span>
-            <Badge className="bg-emerald-950/40 text-emerald-400 border-emerald-500/20 text-[7px] font-black tracking-widest px-1 py-0.5">NIM</Badge>
-          </button>
-
-          <div className="border-t border-white/5 my-1"></div>
-
-          <button
-            onClick={() => router.push('/admin-notifications')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
-              activeTab === 'notifications'
-                ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.02]'
-            }`}
-          >
-            <Bell className="w-4 h-4" />
-            <span>Notification Broadcaster</span>
-          </button>
-
-          <button
-            onClick={() => router.push('/admin-ticker')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
-              activeTab === 'ticker'
-                ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.02]'
-            }`}
-          >
-            <Megaphone className="w-4 h-4" />
-            <span>Live Ticker Control</span>
-          </button>
-
-          <button
-            onClick={() => router.push('/admin-roles')}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
-              activeTab === 'roles'
-                ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.02]'
-            }`}
-          >
-            <Crown className="w-4 h-4" />
-            <span>Role & Promotion Manager</span>
-          </button>
-        </div>
-
-        {/* Right Side Content Display area */}
-        <div className="lg:col-span-9 glass-panel border border-white/5 rounded-2xl p-6 min-h-[450px]">
+      <div className="w-full glass-panel border border-white/5 rounded-2xl p-6 min-h-[450px]">
           
           {/* TAB 1: Student Verification Directory */}
           {activeTab === 'students' && (
@@ -1338,11 +1257,7 @@ export default function AdminPanel({ defaultTab }: AdminPanelProps = {}) {
               </div>
             </div>
           )}
-
-        </div>
-
       </div>
-
     </div>
   );
 }
