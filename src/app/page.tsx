@@ -745,8 +745,10 @@ export default function Home() {
         </div>
 
         {/* Content Box with stagger classes */}
-        <div className="p-6 flex flex-col gap-6 animate-stagger-1">
-          {renderTabContent()}
+        <div className="p-6 flex-1 flex flex-col justify-center items-center animate-stagger-1 w-full">
+          <div className="w-full max-w-7xl mx-auto flex flex-col justify-center items-center">
+            {renderTabContent()}
+          </div>
         </div>
       </main>
 
