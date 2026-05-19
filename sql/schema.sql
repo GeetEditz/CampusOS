@@ -17,7 +17,7 @@ CREATE TYPE opportunity_category AS ENUM (
 
 -- 3. Profiles Table (Linked to Supabase Auth.users)
 CREATE TABLE IF NOT EXISTS public.profiles (
-  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  id UUID PRIMARY KEY, -- Soft reference to auth.users(id) to allow seamless seeding in Supabase SQL editor
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
   avatar_url TEXT,
