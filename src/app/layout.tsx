@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { AppContextProvider } from "@/context/AppContext";
+import DashboardShell from "@/components/DashboardShell";
+
 export const metadata: Metadata = {
   title: "CampusOS - AI College Opportunity Network",
   description: "Democratizing unadvertised student referrals and faculty tips with NVIDIA NIM AI Opportunity Engine.",
@@ -32,7 +35,11 @@ export default function RootLayout({
       lang="en"
       className={`${plusJakartaSans.variable} ${inter.variable} ${geistMono.variable} h-full antialiased dark`}
     >
-      <body className="min-h-screen bg-black antialiased text-white">{children}</body>
+      <body className="min-h-screen bg-black antialiased text-white">
+        <AppContextProvider>
+          <DashboardShell>{children}</DashboardShell>
+        </AppContextProvider>
+      </body>
     </html>
   );
 }

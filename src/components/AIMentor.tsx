@@ -136,7 +136,7 @@ What challenge can I help you bypass today?`,
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto p-1 h-[calc(100vh-140px)] animate-fadeIn">
+    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto p-1 h-full animate-fadeIn">
       
       {/* Header section */}
       <div className="flex justify-between items-center border-b border-white/5 pb-4 shrink-0">
