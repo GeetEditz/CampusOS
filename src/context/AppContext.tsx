@@ -18,8 +18,8 @@ interface AppContextType {
   setIsAuthenticated: (val: boolean) => void;
   authStep: 'login' | 'onboarding';
   setAuthStep: (step: 'login' | 'onboarding') => void;
-  loginPath: 'student' | 'judge' | 'institutional';
-  setLoginPath: (path: 'student' | 'judge' | 'institutional') => void;
+  loginPath: 'student' | 'institutional';
+  setLoginPath: (path: 'student' | 'institutional') => void;
   
   // Dynamic Authentication Mode
   authMode: 'signin' | 'signup';
@@ -88,7 +88,7 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
   // Authentication & Onboarding States
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authStep, setAuthStep] = useState<'login' | 'onboarding'>('login');
-  const [loginPath, setLoginPath] = useState<'student' | 'judge' | 'institutional'>('judge');
+  const [loginPath, setLoginPath] = useState<'student' | 'institutional'>('student');
   
   // Custom Registration / accounts state database
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');

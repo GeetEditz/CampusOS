@@ -113,18 +113,7 @@ export default function LoginPage() {
             </div>
 
             {/* Role/Pathway selector tabs */}
-            <div className="grid grid-cols-3 gap-1.5 p-1 bg-white/[0.03] border border-white/5 rounded-xl">
-              <button
-                type="button"
-                onClick={() => setLoginPath('judge')}
-                className={`py-2 text-[10px] uppercase font-black tracking-wider rounded-lg transition-all cursor-pointer ${
-                  loginPath === 'judge' 
-                    ? 'bg-primary text-primary-foreground shadow-md scale-[1.02]' 
-                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.02]'
-                }`}
-              >
-                Judge Demo
-              </button>
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-white/[0.03] border border-white/5 rounded-xl">
               <button
                 type="button"
                 onClick={() => setLoginPath('student')}
@@ -148,28 +137,6 @@ export default function LoginPage() {
                 Institutional
               </button>
             </div>
-
-            {/* View 1: Judge Demo Pathway */}
-            {loginPath === 'judge' && (
-              <div className="flex flex-col gap-3.5 p-4 rounded-xl bg-primary/3 border border-primary/10 relative overflow-hidden animate-fadeIn">
-                <div className="absolute top-0 right-0 px-2 py-0.5 bg-primary/20 text-primary-foreground text-[8px] font-black uppercase tracking-widest rounded-bl-lg border-l border-b border-primary/20 animate-pulse">
-                  Recommended
-                </div>
-                <label className="text-[10px] text-primary font-bold uppercase tracking-wider">Fast Evaluation Pathway</label>
-                <h3 className="text-xs font-bold text-white leading-relaxed">Instantly unlocks pre-loaded student portfolio, real-time metrics, & network visualizer.</h3>
-                <Button
-                  type="button"
-                  onClick={handleDemoLogin}
-                  className="w-full flex items-center justify-center gap-2 h-10 rounded-xl bg-primary text-primary-foreground font-black text-xs transition-all hover:scale-101 active:scale-99 border border-primary/30 shadow-md shadow-emerald-950/20 hover:opacity-90 mt-2"
-                >
-                  <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-                  <span>One-Click Demo/Judge Portal Login</span>
-                </Button>
-                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
-                  ⚡ Bypasses onboarding to instantly demonstrate placements, compatibility indices, and SVG active directory. Ideal for rapid hackathon pitches.
-                </p>
-              </div>
-            )}
 
             {/* View 2: Student SSO Pathway */}
             {loginPath === 'student' && (
