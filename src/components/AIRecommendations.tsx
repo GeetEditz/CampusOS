@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Cpu, RefreshCw, Layers, Compass, CheckCircle2, ChevronRight, Play, Zap, UserCheck, ArrowRight, BrainCircuit } from 'lucide-react';
+import { Sparkles, Cpu, RefreshCw, Layers, Compass, CheckCircle2, ChevronRight, Play, Zap, UserCheck, ArrowRight, BrainCircuit, X } from 'lucide-react';
 import { UserProfile } from '@/lib/types';
 import { getAINimRecommendations } from '@/lib/nvidia';
+import { useRouter } from 'next/navigation';
+import { useApp } from '@/context/AppContext';
 
 interface AIRecommendationsProps {
   user: UserProfile;
 }
 
 export default function AIRecommendations({ user }: AIRecommendationsProps) {
+  const router = useRouter();
+  const { saveProfileState } = useApp();
   const [loading, setLoading] = useState(false);
-  const [recommendations, setRecommendations] = useState('');
+  const [recommendations, setRecommendations] = useState(user.aiRecommendations || '');
+  const [activeStepModal, setActiveStepModal] = useState<any | null>(null);
+  const [copiedText, setCopiedText] = useState(false);
   
   // Simulated progressive AI scanning logs
   const [loadingLogIndex, setLoadingLogIndex] = useState(0);
@@ -32,7 +38,13 @@ export default function AIRecommendations({ user }: AIRecommendationsProps) {
     'Synthesizing Meta Llama-3.1 neural recommendations roadmap...'
   ];
 
-  const fetchRecommendations = async () => {
+  const fetchRecommendations = async (forceRegenerate = false) => {
+    // If we have cached recommendations and we are not forcing a refresh, just use the cache!
+    if (user.aiRecommendations && !forceRegenerate) {
+      setRecommendations(user.aiRecommendations);
+      return;
+    }
+
     setLoading(true);
     try {
       const recs = await getAINimRecommendations({
@@ -42,6 +54,11 @@ export default function AIRecommendations({ user }: AIRecommendationsProps) {
         interests: user.interests
       });
       setRecommendations(recs);
+      // Cache this generated roadmap into the remote Supabase database!
+      await saveProfileState({
+        ...user,
+        aiRecommendations: recs
+      });
     } catch (e) {
       console.error(e);
     } finally {
@@ -50,9 +67,14 @@ export default function AIRecommendations({ user }: AIRecommendationsProps) {
   };
 
   useEffect(() => {
-    fetchRecommendations();
+    // Only auto-trigger scanning if the user doesn't have a cached AI roadmap in the database yet
+    if (!user.aiRecommendations) {
+      fetchRecommendations(false);
+    } else {
+      setRecommendations(user.aiRecommendations);
+    }
     // eslint-disable-next-line react-hooks-exhaustive-deps
-  }, [user.branch, user.year, user.skills, user.interests]);
+  }, [user.branch, user.year, user.skills, user.interests, user.aiRecommendations]);
 
   // Premium parsed Action Steps for the vertical timeline visualization
   const getActionSteps = () => {
@@ -110,9 +132,9 @@ export default function AIRecommendations({ user }: AIRecommendationsProps) {
         </div>
 
         <button 
-          onClick={fetchRecommendations}
+          onClick={() => fetchRecommendations(true)}
           disabled={loading}
-          className="glow-btn px-4 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
+          className="glow-btn px-4 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 cursor-pointer"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>Re-scan Profile</span>
@@ -247,7 +269,10 @@ export default function AIRecommendations({ user }: AIRecommendationsProps) {
                         </p>
 
                         <div className="flex justify-end mt-2 pt-2 border-t border-white/3">
-                          <button className="text-[9px] font-bold text-zinc-400 hover:text-white flex items-center gap-1 group-hover:text-indigo-400 transition-all">
+                          <button 
+                            onClick={() => setActiveStepModal(step)}
+                            className="text-[9px] font-bold text-zinc-400 hover:text-white flex items-center gap-1 group-hover:text-indigo-400 transition-all cursor-pointer"
+                          >
                             <span>Execute Action Step</span>
                             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                           </button>
@@ -264,6 +289,166 @@ export default function AIRecommendations({ user }: AIRecommendationsProps) {
         </div>
 
       </div>
+
+      {/* Action Step Execution Modal */}
+      {activeStepModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 select-none animate-fadeIn">
+          <div className="bg-zinc-950/90 border border-white/10 rounded-2xl p-6 max-w-md w-full relative shadow-2xl flex flex-col gap-4 text-left">
+            {/* Header */}
+            <div className="flex justify-between items-start">
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black uppercase text-indigo-400 tracking-wider">
+                  Action Step Execution Panel
+                </span>
+                <h3 className="text-base font-bold text-white mt-0.5">
+                  {activeStepModal.title}
+                </h3>
+              </div>
+              <button 
+                onClick={() => {
+                  setActiveStepModal(null);
+                  setCopiedText(false);
+                }}
+                className="text-zinc-500 hover:text-white p-1 hover:bg-white/5 rounded-lg transition-all cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Custom Interactive Content per Action Step */}
+            {activeStepModal.step === '01' && (
+              <div className="flex flex-col gap-3.5 my-2">
+                <p className="text-xs text-zinc-400 leading-normal">
+                  Our neural recommendation engine suggests optimizing your profile directory to maximize search discovery by department heads and top-tier sponsors:
+                </p>
+                <div className="flex flex-col gap-2 p-3 bg-white/3 border border-white/5 rounded-xl text-xs">
+                  <div className="flex items-center gap-2 text-zinc-300">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Skills calibrated: <strong>React, Next.js, Python</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-zinc-300">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Academic year: <strong>Year 3</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-zinc-400 line-through">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Incomplete profile settings index</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setActiveStepModal(null);
+                    router.push('/profile');
+                  }}
+                  className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>Go to Profile Settings</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {activeStepModal.step === '02' && (
+              <div className="flex flex-col gap-3.5 my-2">
+                <p className="text-xs text-zinc-400 leading-normal">
+                  Draft a personalized referral message to senior peer **Rohan Deshmukh** (Google STEP referral holder):
+                </p>
+                <div className="bg-black/40 border border-white/5 rounded-xl p-3.5 text-[11px] font-mono text-zinc-300 leading-relaxed max-h-40 overflow-y-auto select-text">
+                  Hi Rohan, I saw your placement prep recommendations on CampusOS. I'm a CSE Year 3 student specializing in React and Python. I'd love to chat briefly about your Google STEP referral slot when you are free!
+                </div>
+                <div className="flex gap-2.5">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText("Hi Rohan, I saw your placement prep recommendations on CampusOS. I'm a CSE Year 3 student specializing in React and Python. I'd love to chat briefly about your Google STEP referral slot when you are free!");
+                      setCopiedText(true);
+                      setTimeout(() => setCopiedText(false), 2000);
+                    }}
+                    className="flex-1 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    {copiedText ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-emerald-400">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Copy Template</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveStepModal(null);
+                      router.push('/network');
+                    }}
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>Find Seniors</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {activeStepModal.step === '03' && (
+              <div className="flex flex-col gap-3.5 my-2">
+                <p className="text-xs text-zinc-400 leading-normal">
+                  Bypassing the high-GPA threshold is achieved by showing a running prototype directly to **Dr. Verma (Room 304)**:
+                </p>
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs flex flex-col gap-1.5 text-amber-400 font-bold">
+                  <span>📍 Location: CSE Department, AI Research Lab, Room 304</span>
+                  <span>🕒 Time: Thursdays, 3:00 PM - 5:00 PM</span>
+                  <span className="text-[10px] text-zinc-400 font-normal">Tip: Open a React or Python notebook demo on your laptop to present first.</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setActiveStepModal(null);
+                    router.push('/chat');
+                  }}
+                  className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer animate-pulse"
+                >
+                  <span>Ask AI Mentor to Pitch Dr. Verma</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {activeStepModal.step === '04' && (
+              <div className="flex flex-col gap-3.5 my-2">
+                <p className="text-xs text-zinc-400 leading-normal">
+                  Unlock placement databases and prepare for the upcoming high-tier placement drives:
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                  <div className="p-2.5 bg-zinc-900 border border-white/5 rounded-xl">
+                    <span className="text-[10px] text-zinc-500 font-bold block uppercase">Microsoft Prep</span>
+                    <span className="text-zinc-200 font-black text-[11px] block mt-0.5">85+ Solved DP</span>
+                  </div>
+                  <div className="p-2.5 bg-zinc-900 border border-white/5 rounded-xl">
+                    <span className="text-[10px] text-zinc-500 font-bold block uppercase">Atlassian Guide</span>
+                    <span className="text-zinc-200 font-black text-[11px] block mt-0.5">High-Level HLD</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setActiveStepModal(null);
+                    router.push('/feed');
+                  }}
+                  className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>Explore Placements Feed</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/* Footer */}
+            <div className="text-[9px] text-zinc-500 text-center border-t border-white/5 pt-3.5 mt-1.5 uppercase font-black tracking-widest">
+              CampusOS Secure Intelligence Network
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

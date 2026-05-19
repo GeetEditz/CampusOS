@@ -177,7 +177,8 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
               credibilityScore: profile.credibility_score || 0,
               badge: profile.badge as 'Guru' | 'Mentor' | 'Pioneer' | 'Rookie',
               ssoLinked: profile.sso_linked || false,
-              ssoProvider: profile.sso_provider as 'google' | 'microsoft'
+              ssoProvider: profile.sso_provider as 'google' | 'microsoft',
+              aiRecommendations: profile.ai_recommendations || ''
             };
             setUserProfile(mappedProfile);
             setIsAuthenticated(true);
@@ -210,7 +211,8 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
             skills: profile.skills,
             interests: profile.interests,
             sso_linked: profile.ssoLinked || false,
-            sso_provider: profile.ssoProvider || null
+            sso_provider: profile.ssoProvider || null,
+            ai_recommendations: profile.aiRecommendations || null
           })
           .eq('id', profile.id);
 
@@ -304,7 +306,8 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
         credibilityScore: profile.credibility_score || 0,
         badge: profile.badge as 'Guru' | 'Mentor' | 'Pioneer' | 'Rookie',
         ssoLinked: profile.sso_linked || false,
-        ssoProvider: profile.sso_provider as 'google' | 'microsoft'
+        ssoProvider: profile.sso_provider as 'google' | 'microsoft',
+        aiRecommendations: profile.ai_recommendations || ''
       };
 
       console.log(`[CampusOS Auth] ✅ Profiles successfully loaded for user: ${mappedProfile.name}. Loading workspace dashboard...`);
@@ -341,24 +344,45 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
     const emailKey = (emailInput || 'student@university.edu').toLowerCase().trim();
     console.log(`[CampusOS Auth] 📝 Submitting profile onboarding forms. Email Key: ${emailKey}, Name: ${onboardName}`);
 
-    let userId = `u-${Date.now()}`;
+    // Generate a valid RFC4122 v4 UUID for fallback compatibility with pg UUID checks
+    const generateUUID = () => {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    };
+
+    let userId = generateUUID();
 
     if (supabase) {
-      console.log(`[CampusOS Auth] 🌐 Registering new user via Supabase Auth: ${emailInput}`);
-      const { data, error } = await supabase.auth.signUp({
-        email: emailInput.trim(),
-        password: passwordInput || 'password'
-      });
+      // Check if we already have an active authenticated user session in GoTrue client
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
 
-      if (error) {
-        console.warn('[CampusOS Auth] ⚠️ Supabase Sign-Up failed:', error.message);
-        setAuthError(error.message);
-        return;
-      }
+      if (currentUser) {
+        userId = currentUser.id;
+        console.log(`[CampusOS Auth] 🔄 Active authenticated user found: ${currentUser.email}. Reusing existing user ID: ${userId}`);
+      } else {
+        console.log(`[CampusOS Auth] 🌐 Registering new user via Supabase Auth: ${emailInput}`);
+        const { data, error } = await supabase.auth.signUp({
+          email: emailInput.trim(),
+          password: passwordInput || 'password'
+        });
 
-      if (data.user?.id) {
-        userId = data.user.id;
-        console.log(`[CampusOS Auth] ✅ Supabase Auth signup successful. Generated cloud user ID: ${userId}`);
+        if (error) {
+          console.warn('[CampusOS Auth] ⚠️ Supabase Sign-Up failed:', error.message);
+          setAuthError(error.message);
+          return;
+        }
+
+        if (data.user?.id) {
+          userId = data.user.id;
+          console.log(`[CampusOS Auth] ✅ Supabase Auth signup successful. Generated cloud user ID: ${userId}`);
+        } else {
+          // If data.user is empty/null, it means the user already exists in auth.users
+          setAuthError("This email is already registered in our college directory. Please switch to 'Sign In' to access your account!");
+          console.warn('[CampusOS Auth] ⚠️ Registration failed: Email address already exists in Supabase Auth.');
+          return;
+        }
       }
     }
 

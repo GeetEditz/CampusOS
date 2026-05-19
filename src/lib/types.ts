@@ -12,6 +12,7 @@ export interface UserProfile {
   badge?: 'Guru' | 'Mentor' | 'Pioneer' | 'Rookie';
   ssoLinked?: boolean;
   ssoProvider?: 'google' | 'microsoft';
+  aiRecommendations?: string;
 }
 
 export type OpportunityCategory = 
