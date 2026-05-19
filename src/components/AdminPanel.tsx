@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   ShieldCheck, 
   Users, 
@@ -35,16 +36,43 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { HoldToDelete } from '@/components/atomixui/hold-to-delete';
 
-export default function AdminPanel() {
+interface AdminPanelProps {
+  defaultTab?: 'students' | 'posts' | 'ai-placement' | 'notifications' | 'ticker' | 'roles';
+}
+
+export default function AdminPanel({ defaultTab }: AdminPanelProps = {}) {
   const { userProfile, posts, setPosts } = useApp();
   const { toast } = useToast();
+  const router = useRouter();
   
   // States
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
   const [loadingProfiles, setLoadingProfiles] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [auditRunning, setAuditRunning] = useState(false);
-  const [activeTab, setActiveTab] = useState<'students' | 'posts' | 'ai-placement' | 'notifications' | 'ticker' | 'roles'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'posts' | 'ai-placement' | 'notifications' | 'ticker' | 'roles'>(defaultTab || 'students');
+
+  // Sync defaultTab prop and URL query parameter updates
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const tabParam = searchParams.get('tab');
+      if (tabParam === 'posts' || tabParam === 'ai-placement') {
+        setActiveTab(tabParam);
+        return;
+      }
+    }
+    if (defaultTab) {
+      setActiveTab(defaultTab);
+    } else {
+      if (typeof window !== 'undefined' && window.location.pathname === '/admin-panel') {
+        const searchParams = new URLSearchParams(window.location.search);
+        if (!searchParams.get('tab')) {
+          setActiveTab('students');
+        }
+      }
+    }
+  }, [defaultTab, typeof window !== 'undefined' ? window.location.search : '']);
 
   // AI Placement campaign form state
   const [companyName, setCompanyName] = useState('');
@@ -646,7 +674,7 @@ export default function AdminPanel() {
         {/* Left Side Operations Panel Selector */}
         <div className="lg:col-span-3 flex flex-col gap-2 p-1.5 bg-white/[0.015] border border-white/5 rounded-xl">
           <button
-            onClick={() => setActiveTab('students')}
+            onClick={() => router.push('/admin-panel')}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
               activeTab === 'students'
                 ? 'bg-primary/10 text-primary border-l-2 border-primary'
@@ -658,7 +686,7 @@ export default function AdminPanel() {
           </button>
 
           <button
-            onClick={() => setActiveTab('posts')}
+            onClick={() => router.push('/admin-panel?tab=posts')}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
               activeTab === 'posts'
                 ? 'bg-primary/10 text-primary border-l-2 border-primary'
@@ -670,7 +698,7 @@ export default function AdminPanel() {
           </button>
 
           <button
-            onClick={() => setActiveTab('ai-placement')}
+            onClick={() => router.push('/admin-panel?tab=ai-placement')}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
               activeTab === 'ai-placement'
                 ? 'bg-primary/10 text-primary border-l-2 border-primary'
@@ -685,7 +713,7 @@ export default function AdminPanel() {
           <div className="border-t border-white/5 my-1"></div>
 
           <button
-            onClick={() => setActiveTab('notifications')}
+            onClick={() => router.push('/admin-notifications')}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
               activeTab === 'notifications'
                 ? 'bg-primary/10 text-primary border-l-2 border-primary'
@@ -697,7 +725,7 @@ export default function AdminPanel() {
           </button>
 
           <button
-            onClick={() => setActiveTab('ticker')}
+            onClick={() => router.push('/admin-ticker')}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
               activeTab === 'ticker'
                 ? 'bg-primary/10 text-primary border-l-2 border-primary'
@@ -709,7 +737,7 @@ export default function AdminPanel() {
           </button>
 
           <button
-            onClick={() => setActiveTab('roles')}
+            onClick={() => router.push('/admin-roles')}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-left ${
               activeTab === 'roles'
                 ? 'bg-primary/10 text-primary border-l-2 border-primary'

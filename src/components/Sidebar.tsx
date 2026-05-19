@@ -12,7 +12,10 @@ import {
   BookOpen,
   Network,
   HelpCircle,
-  ShieldCheck
+  ShieldCheck,
+  Bell,
+  Megaphone,
+  Crown
 } from 'lucide-react';
 import { UserProfile } from '@/lib/types';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -32,6 +35,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
     { id: 'feed', label: 'Intel Moderation', icon: Rss },
     { id: 'network', label: 'Institutional Map', icon: Network },
     { id: 'admin-panel', label: 'Verification Hub', icon: ShieldCheck, badge: 'Admin' },
+    { id: 'admin-notifications', label: 'Notification Broadcaster', icon: Bell },
+    { id: 'admin-ticker', label: 'Live Ticker Control', icon: Megaphone },
+    { id: 'admin-roles', label: 'Role & Promotion Manager', icon: Crown },
     { id: 'heatmap', label: 'Campus Analytics', icon: TrendingUp },
     { id: 'profile', label: 'Portal Settings', icon: User },
   ] : [
