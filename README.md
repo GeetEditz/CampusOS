@@ -35,6 +35,28 @@ This structural asymmetry ensures that privilege, rather than pure potential, fr
 
 ---
 
+## 🌐 Demo Experience
+
+## 🌐 Deployment Link
+
+DEPLOYMENT LINK -
+
+## 🎥 Demo Video
+
+DEMO VIDEO LINK -
+
+## 🔐 Demo Credentials
+
+### Student Portal
+
+STUDENT PORTAL -
+
+### Institutional Portal
+
+INSTITUTIONAL PORTAL -
+
+---
+
 ## ⚡ The Solution: Unified Institutional Intelligence
 
 CampusOS creates a transparent, high-fidelity infrastructure to bridge the information divide:
@@ -213,28 +235,6 @@ Seniors and contributors accumulate points based on peer verification and studen
 * **Verified Faculty Tip (`+50 Points`):** Awarded when a senior posts a faculty research tip that is validated by comments from other students who successfully contacted the lab.
 * **Direct Referral Spot Fulfillment (`+100 Points`):** Earned when a junior student marks that they successfully secured an interview using a referral shared by the senior.
 * **Spam Flag Penalty (`-30 Points`):** Applied if a post is reported and flagged by administrators as inaccurate or duplicate, ensuring high penalty costs for bad actors.
-
----
-
-## 🌐 Demo Experience
-
-## 🌐 Deployment Link
-
-DEPLOYMENT LINK -
-
-## 🎥 Demo Video
-
-DEMO VIDEO LINK -
-
-## 🔐 Demo Credentials
-
-### Student Portal
-
-STUDENT PORTAL -
-
-### Institutional Portal
-
-INSTITUTIONAL PORTAL -
 
 ---
 
