@@ -13,14 +13,23 @@ export default function ProfileSettings({ user, onUpdateProfile }: ProfileSettin
   const [year, setYear] = useState(user.year);
   
   // Skills list state
-  const [skills, setSkills] = useState<string[]>(user.skills);
+  const [skills, setSkills] = useState<string[]>(user.skills || []);
   const [newSkill, setNewSkill] = useState('');
 
   // Interests list state
-  const [interests, setInterests] = useState<string[]>(user.interests);
+  const [interests, setInterests] = useState<string[]>(user.interests || []);
   const [newInterest, setNewInterest] = useState('');
 
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Keep local state synced if the context profile updates asynchronously
+  React.useEffect(() => {
+    setName(user.name || '');
+    setBranch(user.branch || 'General');
+    setYear(user.year || 1);
+    setSkills(user.skills || []);
+    setInterests(user.interests || []);
+  }, [user]);
 
   const handleAddSkill = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,40 +106,52 @@ export default function ProfileSettings({ user, onUpdateProfile }: ProfileSettin
           </h3>
 
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Full Name</label>
+            <div className="flex flex-col gap-1 group">
+              <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider group-focus-within:text-indigo-400 transition-colors">Full Name</label>
               <input 
                 type="text" 
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="bg-white/3 border border-white/5 rounded-lg p-2.5 text-xs text-white glass-input font-medium"
+                className="bg-white/3 border border-white/5 rounded-lg p-2.5 text-xs text-white glass-input font-medium outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Department / Branch</label>
-                <select
-                  value={branch}
-                  onChange={e => setBranch(e.target.value)}
-                  className="bg-zinc-950 border border-white/5 rounded-lg p-2.5 text-xs text-zinc-300 font-semibold"
-                >
-                  {branchesList.map(b => (
-                    <option key={b} value={b}>{b}</option>
-                  ))}
-                </select>
+              <div className="flex flex-col gap-1 group">
+                <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider group-focus-within:text-indigo-400 transition-colors">Department / Branch</label>
+                <div className="relative">
+                  <select
+                    value={branch}
+                    onChange={e => setBranch(e.target.value)}
+                    className="w-full bg-white/3 border border-white/5 rounded-lg p-2.5 pr-8 text-xs text-white glass-input font-medium appearance-none outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all cursor-pointer"
+                  >
+                    {branchesList.map(b => (
+                      <option key={b} value={b} className="bg-zinc-900 text-white font-medium py-1">{b}</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500 group-hover:text-indigo-400 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Eligible Year</label>
-                <input 
-                  type="number" 
-                  value={year}
-                  onChange={e => setYear(Number(e.target.value))}
-                  min={1}
-                  max={4}
-                  className="bg-white/3 border border-white/5 rounded-lg p-2.5 text-xs text-white glass-input font-medium"
-                />
+              <div className="flex flex-col gap-1 group">
+                <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider group-focus-within:text-indigo-400 transition-colors">Eligible Year</label>
+                <div className="relative">
+                  <input 
+                    type="number" 
+                    value={year}
+                    onChange={e => setYear(Number(e.target.value))}
+                    min={1}
+                    max={4}
+                    className="w-full bg-white/3 border border-white/5 rounded-lg p-2.5 pr-8 text-xs text-white glass-input font-medium appearance-none outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                    style={{ WebkitAppearance: 'none', margin: 0 }}
+                  />
+                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex flex-col pointer-events-none text-zinc-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="mb-[1px]"><path d="m18 15-6-6-6 6"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -179,9 +200,9 @@ export default function ProfileSettings({ user, onUpdateProfile }: ProfileSettin
               </span>
             </div>
 
-            <div className="flex justify-between items-center bg-white/2 border border-white/5 p-3 rounded-xl">
-              <span className="text-xs text-zinc-400 font-semibold">SSO Verification</span>
-              <span className={`text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-wider ${
+            <div className="flex justify-between items-center gap-3 bg-white/2 border border-white/5 p-3 rounded-xl">
+              <span className="text-xs text-zinc-400 font-semibold truncate">SSO Verification</span>
+              <span className={`shrink-0 whitespace-nowrap text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-wider ${
                 user.ssoLinked 
                   ? 'text-emerald-400 bg-emerald-950/20 border-emerald-500/20' 
                   : 'text-zinc-500 bg-zinc-900 border-zinc-800'
