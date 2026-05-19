@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   MessageSquare, 
@@ -13,6 +13,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { Post, Comment, OpportunityCategory, UserProfile } from '@/lib/types';
+import { supabase } from '@/lib/supabase';
 
 interface IntelFeedProps {
   posts: Post[];
@@ -72,48 +73,55 @@ export default function IntelFeed({
   const [commentText, setCommentText] = useState('');
   
   // Comments database simulation
-  const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({
-    'post-1': [
-      {
-        id: 'c-1',
-        postId: 'post-1',
-        content: 'I went to his office last Thursday. He gave me the link to a private repo with the coding challenge. It is basically writing a custom custom loss function in PyTorch for sequence prediction!',
-        author: {
-          id: 'sen-3',
-          name: 'Aditi Rao',
-          role: 'Senior',
-          credibilityScore: 620
-        },
-        createdAt: '2026-05-18T16:00:00Z'
-      },
-      {
-        id: 'c-2',
-        postId: 'post-1',
-        content: 'Is this open to 2nd year students too? I have finished a PyTorch certification.',
-        author: {
-          id: 'user-1',
-          name: 'Arjun Mehta',
-          role: 'Student',
-          credibilityScore: 42
-        },
-        createdAt: '2026-05-18T17:15:00Z'
+  const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({});
+
+  // Fetch comments dynamically when a post is expanded
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!selectedPost || !supabase) return;
+      
+      try {
+        console.log(`[CampusOS Intel] 🔍 Fetching comments for post: ${selectedPost.id}`);
+        const { data, error } = await supabase
+          .from('comments')
+          .select('*, author:profiles(id, name, role, credibility_score)')
+          .eq('post_id', selectedPost.id)
+          .order('created_at', { ascending: true });
+          
+        if (error) {
+          console.error('[CampusOS Intel] ❌ Error loading comments:', error.message);
+          return;
+        }
+        
+        console.log(`[CampusOS Intel] 🔍 Raw comments data received:`, data);
+
+        if (data) {
+          const loadedComments: Comment[] = data.map((row: any) => ({
+            id: row.id,
+            postId: row.post_id,
+            content: row.content,
+            author: {
+              id: row.author?.id,
+              name: row.author?.name || 'Unknown',
+              role: row.author?.role === 'senior' ? 'Senior' : 'Student',
+              credibilityScore: row.author?.credibility_score || 0
+            },
+            createdAt: row.created_at
+          }));
+          
+          console.log(`[CampusOS Intel] ✅ Mapped comments:`, loadedComments);
+          setCommentsMap(prev => ({
+            ...prev,
+            [selectedPost.id]: loadedComments
+          }));
+        }
+      } catch (e) {
+        console.error('[CampusOS Intel] ❌ Failed to fetch comments:', e);
       }
-    ],
-    'post-2': [
-      {
-        id: 'c-3',
-        postId: 'post-2',
-        content: 'Rohan, I have uploaded my resume. I used the Deedy template format as suggested. Let me know if you can see my submission.',
-        author: {
-          id: 'user-1',
-          name: 'Arjun Mehta',
-          role: 'Student',
-          credibilityScore: 42
-        },
-        createdAt: '2026-05-19T07:20:00Z'
-      }
-    ]
-  });
+    };
+    
+    fetchComments();
+  }, [selectedPost?.id]);
 
   const categories: (OpportunityCategory | 'All')[] = [
     'All',

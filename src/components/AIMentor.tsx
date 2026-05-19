@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { ChatMessage, UserProfile } from '@/lib/types';
 import { getAIMentorResponse } from '@/lib/nvidia';
+import { supabase } from '@/lib/supabase';
 
 interface AIMentorProps {
   user: UserProfile;
@@ -22,7 +23,7 @@ export default function AIMentor({ user }: AIMentorProps) {
     {
       id: 'm-init',
       sender: 'ai',
-      content: `Hello Arjun! I am your **CampusOS AI Mentor** 🧠.
+      content: `Hello ${user.name.split(' ')[0]}! I am your **CampusOS AI Mentor** 🧠.
 
 I have fully indexed the **Senior Intelligence Feed**, verified referral portals, and private faculty openings across our college.
 
@@ -38,6 +39,40 @@ What challenge can I help you bypass today?`,
   
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      if (!supabase) return;
+      try {
+        console.log(`[CampusOS AI Mentor] 🔍 Loading chat history for user: ${user.id}...`);
+        const { data, error } = await supabase
+          .from('chat_history')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: true });
+
+        if (error) {
+          console.error('[CampusOS Chat] ❌ Error loading chat history:', error.message);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const loadedMsgs: ChatMessage[] = data.map((row: any) => ({
+            id: row.id,
+            sender: row.sender as 'user' | 'ai',
+            content: row.content,
+            createdAt: row.created_at
+          }));
+          setMessages(loadedMsgs);
+          console.log(`[CampusOS Chat] ✅ Loaded ${loadedMsgs.length} historical messages from database!`);
+        }
+      } catch (err) {
+        console.error('[CampusOS Chat] ❌ Unexpected error fetching chat history:', err);
+      }
+    };
+
+    fetchChatHistory();
+  }, [user.id]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const starterQuestions = [
@@ -66,6 +101,16 @@ What challenge can I help you bypass today?`,
     setLoading(true);
 
     try {
+      // 1. Save user message to remote Supabase database chat_history
+      if (supabase) {
+        const { error: saveErr } = await supabase.from('chat_history').insert({
+          user_id: user.id,
+          sender: 'user',
+          content: text
+        });
+        if (saveErr) console.error('[CampusOS Chat] ❌ Error saving user message:', saveErr.message);
+      }
+
       const response = await getAIMentorResponse(
         text,
         messages.map(m => ({ sender: m.sender, content: m.content })),
@@ -85,6 +130,16 @@ What challenge can I help you bypass today?`,
       };
 
       setMessages(prev => [...prev, aiMsg]);
+
+      // 2. Save AI response to remote Supabase database chat_history
+      if (supabase) {
+        const { error: saveAiErr } = await supabase.from('chat_history').insert({
+          user_id: user.id,
+          sender: 'ai',
+          content: response
+        });
+        if (saveAiErr) console.error('[CampusOS Chat] ❌ Error saving AI response:', saveAiErr.message);
+      }
     } catch (e) {
       console.error(e);
     } finally {

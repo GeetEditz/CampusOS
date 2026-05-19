@@ -41,8 +41,8 @@ export default function DashboardHome({
     handleLinkSSO(provider);
   };
 
-  // Get trending senior intel (posts with high upvotes)
-  const trendingIntel = [...posts].sort((a, b) => b.upvotes - a.upvotes).slice(0, 3);
+  // Get trending senior intel (posts with high net upvotes)
+  const trendingIntel = [...posts].sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes)).slice(0, 3);
   
   // Get upcoming deadlines (posts that have deadline property)
   const upcomingDeadlines = posts.filter(p => p.deadline).slice(0, 3);
@@ -347,7 +347,7 @@ export default function DashboardHome({
                         
                         <div className="flex flex-col items-end shrink-0">
                           <span className="text-xs font-bold text-emerald-400 bg-emerald-950/20 px-2.5 py-1 rounded-lg border border-emerald-500/10">
-                            ▲ {post.upvotes}
+                            ▲ {post.upvotes - post.downvotes}
                           </span>
                         </div>
                       </div>

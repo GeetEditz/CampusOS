@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { UserProfile, Post, Notification } from '@/lib/types';
-import { MOCK_POSTS, MOCK_NOTIFICATIONS, INITIAL_USER, DEMO_PRELOAD_STATE } from '@/lib/mockData';
+import { UserProfile, Post, Notification, OpportunityCategory } from '@/lib/types';
+import { INITIAL_USER } from '@/lib/mockData';
 import { supabase } from '@/lib/supabase';
 
 interface AccountInfo {
@@ -110,8 +110,8 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
 
   // Active Workspace State
   const [userProfile, setUserProfile] = useState<UserProfile>(INITIAL_USER);
-  const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
-  const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [selectedFeedPost, setSelectedFeedPost] = useState<Post | null>(null);
 
   // Command Palette & Keyboard Shortcuts States
@@ -191,7 +191,75 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
       }
     };
 
+    const fetchFeedPosts = async () => {
+      if (!supabase) return;
+      try {
+        console.log('[CampusOS Intel] 🔍 Fetching live intelligence feed from Supabase...');
+        const { data, error } = await supabase
+          .from('posts')
+          .select(`
+            *,
+            author:profiles(id, name, avatar_url, role, credibility_score, badge),
+            comments:comments(count)
+          `)
+          .order('created_at', { ascending: false });
+          
+        if (error) {
+          console.error('[CampusOS Intel] ❌ Error fetching feed posts:', error.message);
+          return;
+        }
+        
+        if (data && data.length > 0) {
+          const cachedPostsStr = localStorage.getItem('campusos_posts');
+          const cachedPosts: Post[] = cachedPostsStr ? JSON.parse(cachedPostsStr) : [];
+          
+          const mappedPosts: Post[] = data.map((row: any) => {
+            const cached = cachedPosts.find((p: Post) => p.id === row.id);
+            return {
+              id: row.id,
+              title: row.title,
+              description: row.description,
+              category: row.category as OpportunityCategory,
+              urgency: row.urgency,
+              tags: row.tags || [],
+              branch: row.branch,
+              year: row.year,
+              author: {
+                id: row.author.id,
+                name: row.author.name,
+                avatarUrl: row.author.avatar_url,
+                role: row.author.role === 'senior' ? 'Senior (4th Year)' : 'Student',
+                credibilityScore: row.author.credibility_score,
+                badge: row.author.badge
+              },
+              upvotes: Math.max(row.upvotes, cached?.upvotes || 0),
+              downvotes: Math.max(row.downvotes, cached?.downvotes || 0),
+              hasUpvoted: cached?.hasUpvoted || false,
+              hasDownvoted: cached?.hasDownvoted || false,
+              commentsCount: row.comments?.[0]?.count || 0,
+              createdAt: row.created_at,
+              deadline: row.deadline
+            };
+          });
+          
+          setPosts(mappedPosts);
+          localStorage.setItem('campusos_posts', JSON.stringify(mappedPosts));
+          
+          setSelectedFeedPost(prev => {
+            if (!prev) return null;
+            const updated = mappedPosts.find(p => p.id === prev.id);
+            return updated || prev;
+          });
+          
+          console.log(`[CampusOS Intel] ✅ Successfully loaded ${mappedPosts.length} posts from live database!`);
+        }
+      } catch (err) {
+        console.error('[CampusOS Intel] ❌ Unexpected error fetching posts:', err);
+      }
+    };
+
     checkSupabaseSession();
+    fetchFeedPosts();
   }, []);
 
   // Sync state helpers
@@ -233,9 +301,9 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
   };
 
   const handleDemoLogin = () => {
-    saveProfileState(DEMO_PRELOAD_STATE.user);
-    savePostsState(DEMO_PRELOAD_STATE.posts);
-    setNotifications(DEMO_PRELOAD_STATE.notifications);
+    saveProfileState(INITIAL_USER);
+    savePostsState([]);
+    setNotifications([]);
     setIsAuthenticated(true);
     localStorage.setItem('campusos_auth', 'true');
     router.push('/dashboard');
@@ -518,7 +586,7 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
   };
 
   // Feed handlers
-  const handleAddPost = (newPostData: Omit<Post, 'id' | 'createdAt' | 'author' | 'upvotes' | 'downvotes' | 'commentsCount'>) => {
+  const handleAddPost = async (newPostData: Omit<Post, 'id' | 'createdAt' | 'author' | 'upvotes' | 'downvotes' | 'commentsCount'>) => {
     const newPost: Post = {
       ...newPostData,
       id: `post-${Date.now()}`,
@@ -535,6 +603,27 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
         badge: userProfile.badge
       }
     };
+
+    if (supabase) {
+      const { data, error } = await supabase.from('posts').insert({
+        title: newPost.title,
+        description: newPost.description,
+        category: newPost.category,
+        urgency: newPost.urgency,
+        tags: newPost.tags,
+        branch: newPost.branch,
+        year: newPost.year,
+        author_id: userProfile.id,
+        deadline: newPost.deadline || null
+      }).select().single();
+      
+      if (error) {
+        console.error('[CampusOS Intel] ❌ Error inserting post into Supabase:', error.message);
+      } else if (data) {
+        newPost.id = data.id;
+        newPost.createdAt = data.created_at;
+      }
+    }
 
     const updated = [newPost, ...posts];
     savePostsState(updated);
@@ -598,9 +687,31 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
     savePostsState(updated);
     
     // Update selectedPost state if open
+    const match = updated.find(p => p.id === postId);
     if (selectedFeedPost && selectedFeedPost.id === postId) {
-      const match = updated.find(p => p.id === postId);
       if (match) setSelectedFeedPost(match);
+    }
+
+    // Sync to Supabase in the background
+    if (supabase && match) {
+      (async () => {
+        try {
+          await supabase.from('upvotes').delete().match({ post_id: postId, user_id: userProfile.id });
+          if (match.hasUpvoted || match.hasDownvoted) {
+            await supabase.from('upvotes').insert({ 
+              post_id: postId, 
+              user_id: userProfile.id, 
+              vote_type: match.hasUpvoted ? 'up' : 'down' 
+            });
+          }
+          await supabase.from('posts').update({ 
+            upvotes: match.upvotes, 
+            downvotes: match.downvotes 
+          }).eq('id', postId);
+        } catch (e) {
+          console.error('[CampusOS Intel] ❌ Sync vote error:', e);
+        }
+      })();
     }
   };
 
@@ -618,6 +729,17 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
 
     if (selectedFeedPost && selectedFeedPost.id === postId) {
       setSelectedFeedPost(prev => prev ? { ...prev, commentsCount: prev.commentsCount + 1 } : null);
+    }
+
+    // Sync comment to Supabase
+    if (supabase) {
+      supabase.from('comments').insert({
+        post_id: postId,
+        author_id: userProfile.id,
+        content: content
+      }).then(({ error }) => {
+        if (error) console.error('[CampusOS Intel] ❌ Error inserting comment:', error.message);
+      });
     }
   };
 
