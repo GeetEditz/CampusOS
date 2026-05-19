@@ -35,25 +35,22 @@ This structural asymmetry ensures that privilege, rather than pure potential, fr
 
 ---
 
+
 ## 🌐 Demo Experience
 
-## 🌐 Deployment Link
+Access the live platform and walk through the student and institutional dashboards using the deployment links and credentials below.
 
-DEPLOYMENT LINK -
+### 🔗 Live Links
+* **Live Deployment:** [https://campusos.geetmore.live/](https://campusos.geetmore.live/)
+* **Cinematic Video Demo:** [https://campusos.geetmore.live/video](https://campusos.geetmore.live/video)
 
-## 🎥 Demo Video
+### 🔐 Demo Credentials
 
-DEMO VIDEO LINK -
+| Portal / Role | Email Address | Password | Access Details |
+| :--- | :--- | :--- | :--- |
+| **🎓 Student Portal** | `student@campusos.geetmore.live` | `test@123` | Access the student workspace, chat with the NVIDIA NIM AI Mentor, view the senior intelligence feed, and generate preparation roadmaps. |
+| **🏢 Institutional Portal** | `hr.sakshisaini@gmail.com` | `test@123` | Monitor placement drive heatmaps, audit credentials, and manage administrative settings. |
 
-## 🔐 Demo Credentials
-
-### Student Portal
-
-STUDENT PORTAL -
-
-### Institutional Portal
-
-INSTITUTIONAL PORTAL -
 
 ---
 
