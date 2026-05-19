@@ -15,6 +15,7 @@ import {
   Legend
 } from 'recharts';
 import { TrendingUp, BarChart3, Users, Flame, PieChart as PieChartIcon } from 'lucide-react';
+import { useApp } from '@/context/AppContext';
 
 export default function OpportunityHeatmap() {
   const [isMounted, setIsMounted] = useState(false);
@@ -23,29 +24,61 @@ export default function OpportunityHeatmap() {
     setIsMounted(true);
   }, []);
 
-  const branchData = [
-    { name: 'CSE', opportunities: 47, engagement: 88, placementPrep: 95 },
-    { name: 'ECE', opportunities: 32, engagement: 65, placementPrep: 72 },
-    { name: 'IT', opportunities: 38, engagement: 74, placementPrep: 84 },
-    { name: 'EE', opportunities: 22, engagement: 50, placementPrep: 58 },
-    { name: 'ME', opportunities: 15, engagement: 35, placementPrep: 42 }
-  ];
+  const { posts } = useApp();
 
-  const domainData = [
-    { name: 'Machine Learning / AI', value: 35, color: '#6366f1' },
-    { name: 'Full-Stack Web', value: 25, color: '#3b82f6' },
-    { name: 'Embedded Systems / ROS', value: 15, color: '#10b981' },
-    { name: 'Scholarships / Grants', value: 15, color: '#ec4899' },
-    { name: 'Competitive Coding', value: 10, color: '#f59e0b' }
-  ];
+  // 1. Dynamic Branch Data Calculation
+  const branchMap = new Map();
+  posts.forEach(post => {
+    const branch = post.branch || 'General';
+    if (!branchMap.has(branch)) {
+      branchMap.set(branch, { name: branch, opportunities: 0, engagement: 0, placementPrep: 0 });
+    }
+    const b = branchMap.get(branch);
+    b.opportunities += 1;
+    b.engagement += ((post.upvotes || 0) + (post.commentsCount || 0));
+    if (post.category === 'Placements' || post.category === 'Internships') {
+      b.placementPrep += 1;
+    }
+  });
+  // Sort branches by opportunities and take top 5
+  const branchData = Array.from(branchMap.values())
+    .sort((a, b) => b.opportunities - a.opportunities)
+    .slice(0, 5);
 
-  const engagementTrend = [
-    { month: 'Jan', activeStudents: 120, applications: 85 },
-    { month: 'Feb', activeStudents: 180, applications: 130 },
-    { month: 'Mar', activeStudents: 320, applications: 240 },
-    { month: 'Apr', activeStudents: 450, applications: 380 },
-    { month: 'May', activeStudents: 590, applications: 510 }
-  ];
+  // 2. Dynamic Domain (Category) Distribution
+  const categoryMap = new Map();
+  let totalPosts = 0;
+  posts.forEach(post => {
+    categoryMap.set(post.category, (categoryMap.get(post.category) || 0) + 1);
+    totalPosts += 1;
+  });
+  const colors = ['#6366f1', '#3b82f6', '#10b981', '#ec4899', '#f59e0b', '#8b5cf6', '#ef4444'];
+  const domainData = Array.from(categoryMap.entries())
+    .sort((a, b) => b[1] - a[1]) // Sort categories by count
+    .map(([name, count], index) => ({
+      name,
+      value: totalPosts > 0 ? Math.round((count / totalPosts) * 100) : 0, // Convert to percentage
+      color: colors[index % colors.length]
+    }))
+    .slice(0, 5); // Take top 5 categories for the pie chart
+
+  // 3. Dynamic Engagement Trend over Time
+  const monthMap = new Map();
+  const sortedPosts = [...posts].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  
+  sortedPosts.forEach(post => {
+    const date = new Date(post.createdAt);
+    const month = date.toLocaleString('default', { month: 'short' });
+    if (!monthMap.has(month)) {
+      monthMap.set(month, { month, activeStudents: 0, applications: 0 });
+    }
+    const m = monthMap.get(month);
+    m.activeStudents += (post.upvotes || 0) * 2; // Approximated active views
+    m.applications += (post.commentsCount || 0); // Approximated replies/applications
+  });
+  
+  // Get chronological sequence
+  const engagementTrend = Array.from(monthMap.values()).slice(-6); // Last 6 months
 
   if (!isMounted) {
     return (

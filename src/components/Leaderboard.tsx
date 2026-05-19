@@ -1,13 +1,62 @@
-import React from 'react';
-import { Award, ShieldAlert, Sparkles, Trophy, Star, MessageSquare, ThumbsUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Award, ShieldAlert, Sparkles, Trophy, Star, MessageSquare, ThumbsUp, Loader2 } from 'lucide-react';
 import { LeaderboardUser } from '@/lib/types';
-import { MOCK_LEADERBOARD } from '@/lib/mockData';
+import { supabase } from '@/lib/supabase';
 
-interface LeaderboardProps {
-  leaderboard?: LeaderboardUser[];
-}
+export default function Leaderboard() {
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function Leaderboard({ leaderboard = MOCK_LEADERBOARD }: LeaderboardProps) {
+  useEffect(() => {
+    async function fetchLeaderboard() {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
+      // 1. Fetch top profiles from DB
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('credibility_score', { ascending: false })
+        .limit(25); // Top 25 mentors
+      
+      if (error || !profiles) {
+        console.error('Error fetching leaderboard:', error);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fetch post counts to calculate "Helpful Posts"
+      const { data: postsData } = await supabase
+        .from('posts')
+        .select('author_id');
+      
+      const counts: Record<string, number> = {};
+      if (postsData) {
+        postsData.forEach(p => {
+          counts[p.author_id] = (counts[p.author_id] || 0) + 1;
+        });
+      }
+
+      // 3. Map into the LeaderboardUser format
+      const board: LeaderboardUser[] = profiles.map((p, index) => ({
+        id: p.id,
+        name: p.name,
+        avatarUrl: p.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.id}`,
+        branch: p.branch || 'Unknown',
+        credibilityScore: p.credibility_score || 0,
+        badge: p.badge || 'Explorer',
+        helpfulPostsCount: counts[p.id] || 0,
+        rank: index + 1
+      }));
+
+      setLeaderboard(board);
+      setLoading(false);
+    }
+    
+    fetchLeaderboard();
+  }, []);
   const getBadgeStyle = (badge: string) => {
     switch (badge) {
       case 'Guru': return 'bg-amber-950/40 text-amber-400 border border-amber-500/30';
@@ -49,10 +98,20 @@ export default function Leaderboard({ leaderboard = MOCK_LEADERBOARD }: Leaderbo
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Top 3 Podium Displays */}
-        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {leaderboard.slice(0, 3).map((senior) => (
-            <div 
-              key={senior.id}
+        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[200px]">
+          {loading ? (
+            <div className="col-span-3 flex justify-center items-center flex-col gap-3 opacity-50">
+              <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+              <span className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Syncing rankings...</span>
+            </div>
+          ) : leaderboard.length === 0 ? (
+            <div className="col-span-3 flex justify-center items-center text-zinc-500 text-sm py-10">
+              No senior mentors found in the database.
+            </div>
+          ) : (
+            leaderboard.slice(0, 3).map((senior) => (
+              <div 
+                key={senior.id}
               className="p-5 rounded-2xl glass-panel border border-white/5 flex flex-col items-center text-center relative overflow-hidden group hover:-translate-y-0.5 transition-all"
             >
               {/* Top glow */}
@@ -87,8 +146,9 @@ export default function Leaderboard({ leaderboard = MOCK_LEADERBOARD }: Leaderbo
                   <span>{senior.helpfulPostsCount} contributions</span>
                 </div>
               </div>
-            </div>
-          ))}
+              </div>
+            ))
+          )}
         </div>
 
         {/* Complete Table List */}
@@ -110,9 +170,16 @@ export default function Leaderboard({ leaderboard = MOCK_LEADERBOARD }: Leaderbo
                 </tr>
               </thead>
               <tbody>
-                {leaderboard.map((senior) => (
-                  <tr 
-                    key={senior.id}
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-10 text-zinc-500 text-xs">
+                      Loading data...
+                    </td>
+                  </tr>
+                ) : (
+                  leaderboard.map((senior) => (
+                    <tr 
+                      key={senior.id}
                     className="border-b border-white/5 hover:bg-white/2 transition-colors text-zinc-300 font-medium"
                   >
                     <td className="py-3.5 px-3 font-bold">{senior.rank}</td>
@@ -136,7 +203,8 @@ export default function Leaderboard({ leaderboard = MOCK_LEADERBOARD }: Leaderbo
                       {senior.credibilityScore} pts
                     </td>
                   </tr>
-                ))}
+                ))
+              )}
               </tbody>
             </table>
           </div>
