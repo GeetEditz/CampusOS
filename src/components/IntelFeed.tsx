@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { Post, Comment, OpportunityCategory, UserProfile } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
+import { useToast } from '@/components/ui/use-toast';
+import { HoldToDelete } from '@/components/atomixui/hold-to-delete';
 
 interface IntelFeedProps {
   posts: Post[];
@@ -34,6 +36,7 @@ export default function IntelFeed({
   selectedPost,
   setSelectedPost
 }: IntelFeedProps) {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<OpportunityCategory | 'All'>('All');
   const [isAddingPost, setIsAddingPost] = useState(false);
@@ -184,7 +187,8 @@ export default function IntelFeed({
         role: user.role === 'senior' ? 'Senior' : 'Student',
         credibilityScore: user.credibilityScore
       },
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      deletedByAdmin: false
     };
 
     setCommentsMap(prev => ({
@@ -194,6 +198,39 @@ export default function IntelFeed({
 
     onAddComment(postId, commentText);
     setCommentText('');
+  };
+
+  const handleDeleteCommentDirectly = async (commentId: string, postId: string) => {
+    if (!supabase) return;
+    try {
+      const { error } = await supabase
+        .from('comments')
+        .update({ deleted_by_admin: true })
+        .eq('id', commentId);
+
+      if (error) throw error;
+
+      setCommentsMap(prev => {
+        const postComments = prev[postId] || [];
+        return {
+          ...prev,
+          [postId]: postComments.map(c => c.id === commentId ? { ...c, deletedByAdmin: true } : c)
+        };
+      });
+
+      toast({
+        title: 'Reply Moderated',
+        description: 'The reply has been flagged as deleted by admin.',
+        variant: 'success'
+      });
+    } catch (err: any) {
+      console.error('[CampusOS Intel] Error moderate comment:', err.message);
+      toast({
+        title: 'Moderation Failed',
+        description: err.message,
+        variant: 'destructive'
+      });
+    }
   };
 
   const getUrgencyBadge = (urgency: string) => {
@@ -331,24 +368,46 @@ export default function IntelFeed({
             {postComments.map((comment) => (
               <div 
                 key={comment.id}
-                className="p-4 rounded-xl bg-white/3 border border-white/5 flex gap-3 items-start animate-slideUp"
+                className={`p-4 rounded-xl border flex gap-3 items-start animate-slideUp transition-all ${
+                  comment.deletedByAdmin 
+                    ? 'bg-zinc-950/20 border-zinc-900/50 opacity-75' 
+                    : 'bg-white/3 border-white/5'
+                }`}
               >
                 <CornerDownRight className="w-4 h-4 text-zinc-600 shrink-0 mt-0.5" />
-                <div className="flex-1 flex flex-col gap-1.5">
-                  <div className="flex justify-between items-center">
+                <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+                  <div className="flex justify-between items-center gap-4 flex-wrap">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-zinc-200">{comment.author.name}</span>
                       <span className="text-[9px] px-1.5 py-0.25 rounded bg-zinc-900 border border-zinc-800 text-zinc-500 font-bold">
                         Credibility: {comment.author.credibilityScore}
                       </span>
                     </div>
-                    <span className="text-[10px] text-zinc-500">
-                      {new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'})}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-zinc-500">
+                        {new Date(comment.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'})}
+                      </span>
+                      {user.role === 'admin' && !comment.deletedByAdmin && (
+                        <HoldToDelete
+                          onDelete={() => handleDeleteCommentDirectly(comment.id, selectedPost.id)}
+                          label="Delete Reply"
+                          deletedLabel="Deleted"
+                          holdDuration={1500}
+                          className="h-6 text-[8px] font-bold px-2 py-0 border-red-500/20 text-red-400 bg-red-500/5 hover:bg-red-500/10 cursor-pointer flex items-center justify-center rounded"
+                        />
+                      )}
+                    </div>
                   </div>
-                  <p className="text-xs text-zinc-400 leading-relaxed leading-normal whitespace-pre-wrap">
-                    {comment.content}
-                  </p>
+                  {comment.deletedByAdmin ? (
+                    <div className="text-zinc-500 italic text-[11.5px] flex items-center gap-1.5 py-1">
+                      <AlertCircle className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+                      <span>This response has been deleted by the admin</span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-zinc-400 leading-relaxed whitespace-pre-wrap break-words">
+                      {comment.content}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}

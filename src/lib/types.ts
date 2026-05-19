@@ -63,6 +63,7 @@ export interface Comment {
     credibilityScore: number;
   };
   createdAt: string;
+  deletedByAdmin?: boolean;
 }
 
 export interface Notification {
