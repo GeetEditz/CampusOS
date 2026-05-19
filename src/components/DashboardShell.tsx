@@ -113,14 +113,14 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         p.tags.some(t => t.toLowerCase().includes(commandSearchQuery.toLowerCase()))
       );
 
-  // 1. DEDICATED LOGIN ROUTE RENDERING & ROUTE PROTECTION GATE
+  // 1. DEDICATED LOGIN & VIDEO & LANDING ROUTE PROTECTION GATE
   React.useEffect(() => {
-    if (!isAuthenticated && pathname !== '/login') {
+    if (!isAuthenticated && pathname !== '/' && pathname !== '/login' && pathname !== '/video') {
       router.push('/login');
     }
   }, [isAuthenticated, pathname, router]);
 
-  if (pathname === '/login') {
+  if (pathname === '/' || pathname === '/login' || pathname === '/video') {
     return <>{children}</>;
   }
 

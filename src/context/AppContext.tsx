@@ -6,6 +6,7 @@ import { UserProfile, Post, Notification, OpportunityCategory } from '@/lib/type
 import { INITIAL_USER } from '@/lib/mockData';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/use-toast';
+import { isUuid } from '@/lib/utils';
 
 interface AccountInfo {
   password?: string;
@@ -300,6 +301,10 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
         const savedProfile = localStorage.getItem('campusos_profile');
         if (!savedProfile) return;
         const profile = JSON.parse(savedProfile);
+        if (!isUuid(profile.id)) {
+          console.log('[CampusOS] ℹ️ Mock/simulated user session detected, skipping live notifications DB fetch.');
+          return;
+        }
         const { data, error } = await supabase
           .from('notifications')
           .select('*')
@@ -342,7 +347,7 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
     setUserProfile(profile);
     localStorage.setItem('campusos_profile', JSON.stringify(profile));
 
-    if (supabase) {
+    if (supabase && isUuid(profile.id)) {
       console.log(`[CampusOS Auth] 💾 Syncing updated profile details to Supabase for: ${profile.id}`);
       try {
         const { error } = await supabase
@@ -615,7 +620,7 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
     };
     saveProfileState(updatedProfile);
 
-    if (supabase) {
+    if (supabase && isUuid(userProfile.id)) {
       console.log(`[CampusOS Auth] 💾 Syncing SSO status to Supabase profiles for user: ${userProfile.id}`);
       const { error } = await supabase
         .from('profiles')

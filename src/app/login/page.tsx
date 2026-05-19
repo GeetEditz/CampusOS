@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { 
   Sparkles, 
   BookOpen, 
@@ -323,6 +324,18 @@ export default function LoginPage() {
                 </div>
               </form>
             )}
+
+            {/* Watch Demo Tour link */}
+            <div className="border-t border-white/5 pt-4 mt-2 flex flex-col items-center">
+              <Link href="/video" className="group text-xs text-zinc-400 hover:text-white transition-all flex items-center gap-2 font-semibold">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span>Watch the CampusOS Video Demo Tour</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </div>
           </div>
         )}
 

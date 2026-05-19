@@ -13,6 +13,7 @@ import {
 import { ChatMessage, UserProfile } from '@/lib/types';
 import { getAIMentorResponse } from '@/lib/nvidia';
 import { supabase } from '@/lib/supabase';
+import { isUuid } from '@/lib/utils';
 
 interface AIMentorProps {
   user: UserProfile;
@@ -42,7 +43,7 @@ What challenge can I help you bypass today?`,
 
   useEffect(() => {
     const fetchChatHistory = async () => {
-      if (!supabase) return;
+      if (!supabase || !isUuid(user.id)) return;
       try {
         console.log(`[CampusOS AI Mentor] 🔍 Loading chat history for user: ${user.id}...`);
         const { data, error } = await supabase
@@ -104,7 +105,7 @@ What challenge can I help you bypass today?`,
 
     try {
       // 1. Save user message to remote Supabase database chat_history
-      if (supabase) {
+      if (supabase && isUuid(user.id)) {
         const { error: saveErr } = await supabase.from('chat_history').insert({
           user_id: user.id,
           sender: 'user',
@@ -134,7 +135,7 @@ What challenge can I help you bypass today?`,
       setMessages(prev => [...prev, aiMsg]);
 
       // 2. Save AI response to remote Supabase database chat_history
-      if (supabase) {
+      if (supabase && isUuid(user.id)) {
         const { error: saveAiErr } = await supabase.from('chat_history').insert({
           user_id: user.id,
           sender: 'ai',

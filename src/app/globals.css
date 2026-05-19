@@ -342,6 +342,21 @@ body {
   animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes slideDownFade {
+  0% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideDown {
+  animation: slideDownFade 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
