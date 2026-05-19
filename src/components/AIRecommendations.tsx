@@ -10,6 +10,27 @@ interface AIRecommendationsProps {
 export default function AIRecommendations({ user }: AIRecommendationsProps) {
   const [loading, setLoading] = useState(false);
   const [recommendations, setRecommendations] = useState('');
+  
+  // Simulated progressive AI scanning logs
+  const [loadingLogIndex, setLoadingLogIndex] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loading) {
+      setLoadingLogIndex(0);
+      interval = setInterval(() => {
+        setLoadingLogIndex(prev => (prev < 3 ? prev + 1 : prev));
+      }, 750);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
+
+  const loadingLogs = [
+    'Analyzing student opportunity graph...',
+    'Calibrating branch-specific pathways for B.Tech cohort...',
+    'Querying verified senior mentor databases...',
+    'Synthesizing Meta Llama-3.1 neural recommendations roadmap...'
+  ];
 
   const fetchRecommendations = async () => {
     setLoading(true);
@@ -166,14 +187,31 @@ export default function AIRecommendations({ user }: AIRecommendationsProps) {
             </div>
 
             {loading ? (
-              <div className="flex-grow flex flex-col gap-4 justify-center items-center py-20">
-                <div className="relative w-12 h-12 flex items-center justify-center">
-                  <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin"></div>
-                  <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />
+              <div className="flex-grow flex flex-col gap-6 justify-center items-center py-16 animate-fadeIn">
+                <div className="flex items-center justify-center gap-1.5 h-6">
+                  <span className="ai-pulse-bar"></span>
+                  <span className="ai-pulse-bar"></span>
+                  <span className="ai-pulse-bar"></span>
                 </div>
+                
+                {/* Simulated Log Console */}
+                <div className="w-full max-w-sm p-4 rounded-xl bg-zinc-950/80 border border-white/5 font-mono text-[10px] text-zinc-500 flex flex-col gap-2 shadow-inner">
+                  {loadingLogs.slice(0, loadingLogIndex + 1).map((log, idx) => {
+                    const isLast = idx === loadingLogIndex;
+                    return (
+                      <div key={idx} className={`flex items-start gap-2 ${isLast ? 'text-indigo-400 font-bold' : 'text-zinc-500'}`}>
+                        <span>[{idx + 1}/4]</span>
+                        <span>{isLast ? '⚡' : '✓'}</span>
+                        <span className="flex-grow truncate">{log}</span>
+                        {isLast && <span className="animate-ping w-1 h-3 bg-indigo-500 shrink-0"></span>}
+                      </div>
+                    );
+                  })}
+                </div>
+
                 <div className="text-center">
-                  <p className="text-xs font-bold text-zinc-200 tracking-wide uppercase">Engine Scanning active...</p>
-                  <p className="text-[10px] text-zinc-500 mt-1">Calibrating placement timeline and peer networks...</p>
+                  <p className="text-[10px] uppercase font-black tracking-widest text-indigo-400">NVIDIA Neural Scanning Gate</p>
+                  <p className="text-[9px] text-zinc-600 mt-0.5">Synthesizing customized college pathways in memory...</p>
                 </div>
               </div>
             ) : (
