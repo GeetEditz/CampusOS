@@ -260,6 +260,15 @@ export default function DashboardShell({ children }: DashboardShellProps) {
                       <span>Go to AI Roadmaps</span>
                       <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + a</span>
                     </button>
+                    {userProfile.role === 'admin' && (
+                      <button 
+                        onClick={() => { setIsCommandPaletteOpen(false); router.push('/admin-panel'); }}
+                        className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
+                      >
+                        <span>Go to Verification Hub</span>
+                        <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + v</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -336,6 +345,12 @@ export default function DashboardShell({ children }: DashboardShellProps) {
                 <span className="text-zinc-400">Go to AI Mentor Chat</span>
                 <span className="text-white font-bold bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded">G + C</span>
               </div>
+              {userProfile.role === 'admin' && (
+                <div className="flex justify-between items-center py-1 border-b border-white/3">
+                  <span className="text-zinc-400">Go to Verification Hub</span>
+                  <span className="text-white font-bold bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded">G + V</span>
+                </div>
+              )}
               <div className="flex justify-between items-center py-1">
                 <span className="text-zinc-400">Close active modal</span>
                 <span className="text-white font-bold bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded">ESC</span>

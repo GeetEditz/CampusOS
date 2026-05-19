@@ -362,8 +362,14 @@ export default function LoginPage() {
         {authStep === 'onboarding' && (
           <form onSubmit={handleOnboardingComplete} className="flex flex-col gap-5 animate-fadeIn">
             <div className="flex flex-col gap-1 text-center sm:text-left">
-              <h2 className="text-lg font-black text-white">Scan Student Profile Parameters</h2>
-              <p className="text-zinc-400 text-xs">This feeds the NVIDIA NIM AI scanner to generate matching career paths.</p>
+              <h2 className="text-lg font-black text-white">
+                {loginPath === 'institutional' ? 'Configure Institutional Node' : 'Scan Student Profile Parameters'}
+              </h2>
+              <p className="text-zinc-400 text-xs">
+                {loginPath === 'institutional' 
+                  ? 'This calibrates the NVIDIA NIM AI engines for placement drive oversight and security auditing.'
+                  : 'This feeds the NVIDIA NIM AI scanner to generate matching career paths.'}
+              </p>
             </div>
 
             <div className="flex flex-col gap-4 border-y border-white/5 py-4 overflow-y-auto max-h-[350px] pr-1">
@@ -373,7 +379,7 @@ export default function LoginPage() {
                   type="text" 
                   value={onboardName}
                   onChange={e => setOnboardName(e.target.value)}
-                  placeholder="e.g. Arjun Mehta" 
+                  placeholder={loginPath === 'institutional' ? "e.g. Dr. Ramesh Gupta" : "e.g. Arjun Mehta"} 
                   className="w-full bg-white/3 border border-white/5 rounded-xl p-2.5 text-xs text-white glass-input"
                   required
                 />
@@ -381,7 +387,9 @@ export default function LoginPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Eligible Department</label>
+                  <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                    {loginPath === 'institutional' ? 'Managing Division' : 'Eligible Department'}
+                  </label>
                   <select
                     value={onboardBranch}
                     onChange={e => setOnboardBranch(e.target.value)}
@@ -392,32 +400,52 @@ export default function LoginPage() {
                     <option value="Information Technology">Information Tech (IT)</option>
                     <option value="Electrical Engineering">Electrical (EE)</option>
                     <option value="Mechanical Engineering">Mechanical (ME)</option>
+                    {loginPath === 'institutional' && (
+                      <option value="Placement & Training Cell">Placement & Training Cell</option>
+                    )}
                   </select>
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">B.Tech Year</label>
-                  <Input 
-                    type="number" 
-                    value={onboardYear}
-                    onChange={e => setOnboardYear(Number(e.target.value))}
-                    min={1}
-                    max={4}
-                    className="w-full bg-white/3 border border-white/5 rounded-xl p-2.5 text-xs text-white glass-input"
-                    required
-                  />
+                  <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                    {loginPath === 'institutional' ? 'Administrative Clearance' : 'B.Tech Year'}
+                  </label>
+                  {loginPath === 'institutional' ? (
+                    <select
+                      value={onboardYear}
+                      onChange={e => setOnboardYear(Number(e.target.value))}
+                      className="bg-zinc-950 border border-white/5 rounded-xl p-2.5 text-xs text-zinc-300 font-semibold"
+                    >
+                      <option value={1}>Tier 1: Department HOD</option>
+                      <option value={2}>Tier 2: Faculty Advisor</option>
+                      <option value={3}>Tier 3: Training & Placement Lead</option>
+                      <option value={4}>Tier 4: College Director / Dean</option>
+                    </select>
+                  ) : (
+                    <Input 
+                      type="number" 
+                      value={onboardYear}
+                      onChange={e => setOnboardYear(Number(e.target.value))}
+                      min={1}
+                      max={4}
+                      className="w-full bg-white/3 border border-white/5 rounded-xl p-2.5 text-xs text-white glass-input"
+                      required
+                    />
+                  )}
                 </div>
               </div>
 
               {/* Skills tags */}
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Skills tags</label>
+                <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                  {loginPath === 'institutional' ? 'Focus Domains / Areas' : 'Skills tags'}
+                </label>
                 <div className="flex gap-2">
                   <Input 
                     type="text" 
                     value={newSkillInput}
                     onChange={e => setNewSkillInput(e.target.value)}
-                    placeholder="e.g. PyTorch, React, Java" 
+                    placeholder={loginPath === 'institutional' ? "e.g. Placement Auditing, Faculty Tips" : "e.g. PyTorch, React, Java"} 
                     className="flex-grow bg-white/3 border border-white/5 rounded-xl p-2 text-xs text-white glass-input"
                   />
                   <button 
@@ -439,13 +467,15 @@ export default function LoginPage() {
 
               {/* Interests tags */}
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Primary Interests</label>
+                <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                  {loginPath === 'institutional' ? 'Administrative Priorities' : 'Primary Interests'}
+                </label>
                 <div className="flex gap-2">
                   <Input 
                     type="text" 
                     value={newInterestInput}
                     onChange={e => setNewInterestInput(e.target.value)}
-                    placeholder="e.g. AI Research, Placements" 
+                    placeholder={loginPath === 'institutional' ? "e.g. Anti-Spam Verification, Placement Drive" : "e.g. AI Research, Placements"} 
                     className="flex-grow bg-white/3 border border-white/5 rounded-xl p-2 text-xs text-white glass-input"
                   />
                   <button 
@@ -471,7 +501,7 @@ export default function LoginPage() {
               className="glow-btn w-full h-10 rounded-xl font-bold text-xs text-white flex items-center justify-center gap-2 hover:scale-101 transition-all"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>Initialize AI Operating System</span>
+              <span>{loginPath === 'institutional' ? 'Initialize Administration Dashboard' : 'Initialize AI Operating System'}</span>
             </Button>
           </form>
         )}

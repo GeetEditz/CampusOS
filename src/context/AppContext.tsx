@@ -53,7 +53,7 @@ interface AppContextType {
   userProfile: UserProfile;
   setUserProfile: (profile: UserProfile) => void;
   posts: Post[];
-  setPosts: (posts: Post[]) => void;
+  setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
   notifications: Notification[];
   setNotifications: (notifications: Notification[]) => void;
   selectedFeedPost: Post | null;
@@ -294,8 +294,47 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
       }
     };
 
+    const fetchNotifications = async () => {
+      if (!supabase) return;
+      try {
+        const savedProfile = localStorage.getItem('campusos_profile');
+        if (!savedProfile) return;
+        const profile = JSON.parse(savedProfile);
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(20);
+        if (error) {
+          console.error('[CampusOS] ❌ Error fetching notifications:', error.message);
+          return;
+        }
+        if (data && data.length > 0) {
+          const mapped: Notification[] = data.map((n: any) => ({
+            id: n.id,
+            title: n.title,
+            message: n.message,
+            type: n.type,
+            actionUrl: n.action_url,
+            timeRemaining: n.time_remaining,
+            read: n.read,
+            createdAt: n.created_at
+          }));
+          setNotifications(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const newOnes = mapped.filter(m => !existingIds.has(m.id));
+            return [...newOnes, ...prev];
+          });
+        }
+      } catch (err) {
+        console.error('[CampusOS] ❌ Unexpected error fetching notifications:', err);
+      }
+    };
+
     checkSupabaseSession();
     fetchFeedPosts();
+    fetchNotifications();
   }, []);
 
   // Sync state helpers
@@ -831,6 +870,7 @@ export function AppContextProvider({ children }: { children: React.ReactNode }) 
           else if (k === 'l') { router.push('/leaderboard'); }
           else if (k === 'h') { router.push('/heatmap'); }
           else if (k === 'p') { router.push('/profile'); }
+          else if (k === 'v') { router.push('/admin-panel'); }
           
           window.removeEventListener('keydown', handleSequence);
         };

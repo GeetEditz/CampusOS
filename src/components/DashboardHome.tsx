@@ -122,33 +122,62 @@ export default function DashboardHome({
             <div className="flex items-center gap-2 mb-2">
               <span className="text-[9px] uppercase font-black tracking-wider text-primary px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 flex items-center gap-1.5 shadow-sm">
                 <Sparkles className="w-3 h-3 text-primary animate-spin" />
-                Active Institutional scanning
+                {user.role === 'admin' ? 'Administration Node Active' : 'Active Institutional scanning'}
               </span>
             </div>
             <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">
               Welcome back, {user.name} 👋
             </h2>
             <p className="text-zinc-400 text-xs mt-1.5 max-w-xl leading-relaxed">
-              CampusOS scanned <span className="text-primary font-semibold">{posts.length || 5} hidden Senior Channels</span>. 
-              Your active branch profile has <span className="text-emerald-400 font-semibold">{posts.filter(p => p.urgency === 'Critical' || p.urgency === 'High').length || 2} critical referral opportunities</span> active today.
+              {user.role === 'admin' ? (
+                <>
+                  CampusOS directory databases online. There are <span className="text-primary font-semibold">{posts.length || 5} active intel bulletins</span> and multiple unverified student credentials awaiting verification audits.
+                </>
+              ) : (
+                <>
+                  CampusOS scanned <span className="text-primary font-semibold">{posts.length || 5} hidden Senior Channels</span>. 
+                  Your active branch profile has <span className="text-emerald-400 font-semibold">{posts.filter(p => p.urgency === 'Critical' || p.urgency === 'High').length || 2} critical referral opportunities</span> active today.
+                </>
+              )}
             </p>
           </div>
           
           <div className="flex flex-wrap gap-2.5 mt-2">
-            <button 
-              onClick={() => setActiveTab('ai-rec')}
-              className="glow-btn px-4.5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-2 hover:scale-103 active:scale-97 transition-all"
-            >
-              <Brain className="w-3.5 h-3.5" />
-              <span>Scan Neural Roadmap</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-            <button 
-              onClick={() => setActiveTab('chat')}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-300 hover:text-white bg-white/3 border border-white/5 hover:bg-white/5 transition-all flex items-center gap-2"
-            >
-              <span>Consult AI Mentor</span>
-            </button>
+            {user.role === 'admin' ? (
+              <>
+                <button 
+                  onClick={() => setActiveTab('admin-panel')}
+                  className="glow-btn px-4.5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-2 hover:scale-103 active:scale-97 transition-all cursor-pointer"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Launch Verification Hub</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+                <button 
+                  onClick={() => setActiveTab('feed')}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-300 hover:text-white bg-white/3 border border-white/5 hover:bg-white/5 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Intel Moderation</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  onClick={() => setActiveTab('ai-rec')}
+                  className="glow-btn px-4.5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-2 hover:scale-103 active:scale-97 transition-all"
+                >
+                  <Brain className="w-3.5 h-3.5" />
+                  <span>Scan Neural Roadmap</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+                <button 
+                  onClick={() => setActiveTab('chat')}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-300 hover:text-white bg-white/3 border border-white/5 hover:bg-white/5 transition-all flex items-center gap-2"
+                >
+                  <span>Consult AI Mentor</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -168,7 +197,7 @@ export default function DashboardHome({
                 stroke="url(#primaryGrad)" 
                 strokeWidth="4" 
                 strokeDasharray={`${2 * Math.PI * 28}`}
-                strokeDashoffset={`${2 * Math.PI * 28 * (1 - visibilityScore / 100)}`}
+                strokeDashoffset={`${2 * Math.PI * 28 * (1 - (user.role === 'admin' ? 100 : visibilityScore) / 100)}`}
                 strokeLinecap="round"
                 className="transition-all duration-1000 ease-out"
               />
@@ -180,23 +209,33 @@ export default function DashboardHome({
               </defs>
             </svg>
             <div className="absolute flex flex-col items-center">
-              <span className="text-sm font-black text-white">{visibilityScore}%</span>
+              <span className="text-sm font-black text-white">{user.role === 'admin' ? 100 : visibilityScore}%</span>
             </div>
           </div>
 
           <div className="flex flex-col gap-1 z-10">
-            <span className="text-[9px] uppercase font-bold tracking-widest text-zinc-500">Campus Visibility</span>
-            <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${getVisibilityLevel(visibilityScore).color}`}>
-              {getVisibilityLevel(visibilityScore).label}
+            <span className="text-[9px] uppercase font-bold tracking-widest text-zinc-500">
+              {user.role === 'admin' ? 'System Integrity' : 'Campus Visibility'}
             </span>
-            <span className="text-[10px] text-zinc-400 mt-0.5 font-semibold">Active awareness score</span>
+            {user.role === 'admin' ? (
+              <span className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/40 border border-emerald-500/30">
+                Node Secured
+              </span>
+            ) : (
+              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${getVisibilityLevel(visibilityScore).color}`}>
+                {getVisibilityLevel(visibilityScore).label}
+              </span>
+            )}
+            <span className="text-[10px] text-zinc-400 mt-0.5 font-semibold">
+              {user.role === 'admin' ? 'Clearance Level 4' : 'Active awareness score'}
+            </span>
           </div>
         </div>
 
       </div>
 
       {/* 🔐 Post-Login SSO Prompt Banner */}
-      {!user.ssoLinked && (
+      {user.role !== 'admin' && !user.ssoLinked && (
         <div className="relative p-5 rounded-2xl overflow-hidden glass-panel border border-primary/20 bg-gradient-to-r from-emerald-950/20 via-black to-black flex flex-col md:flex-row justify-between items-center gap-4 relative group transition-all duration-300 animate-fadeIn">
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
           
@@ -252,44 +291,89 @@ export default function DashboardHome({
           
           {/* Quick Shortcuts */}
           <div className="grid grid-cols-3 gap-4">
-            <button 
-              onClick={() => setActiveTab('feed')}
-              className="p-4 rounded-xl glass-panel text-left flex flex-col justify-between h-28 relative overflow-hidden group transition-all"
-            >
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-all">
-                <Flame className="w-4 h-4 animate-pulse" />
-              </div>
-              <div>
-                <p className="text-xs text-zinc-300 font-bold">Senior Feed</p>
-                <p className="text-[10px] text-zinc-500 mt-0.5">Explore {posts.length || 5} active leads</p>
-              </div>
-            </button>
+            {user.role === 'admin' ? (
+              <>
+                <button 
+                  onClick={() => setActiveTab('admin-panel')}
+                  className="p-4 rounded-xl glass-panel border border-primary/20 bg-primary/5 text-left flex flex-col justify-between h-28 relative overflow-hidden group transition-all"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 transition-all">
+                    <ShieldCheck className="w-4 h-4 animate-pulse" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-200 font-black">Verification Hub</p>
+                    <p className="text-[10px] text-zinc-400 mt-0.5">Manage credentials</p>
+                  </div>
+                </button>
 
-            <button 
-              onClick={() => setActiveTab('chat')}
-              className="p-4 rounded-xl glass-panel text-left flex flex-col justify-between h-28 relative overflow-hidden group transition-all"
-            >
-              <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-all">
-                <Users className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-xs text-zinc-300 font-bold">AI Mentor Chat</p>
-                <p className="text-[10px] text-zinc-500 mt-0.5">Custom placement prep</p>
-              </div>
-            </button>
+                <button 
+                  onClick={() => setActiveTab('feed')}
+                  className="p-4 rounded-xl glass-panel text-left flex flex-col justify-between h-28 relative overflow-hidden group transition-all"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-all">
+                    <Flame className="w-4 h-4 animate-pulse" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-300 font-bold">Intel Moderation</p>
+                    <p className="text-[10px] text-zinc-500 mt-0.5">{posts.length || 0} active bulletins</p>
+                  </div>
+                </button>
 
-            <button 
-              onClick={onAddPostClick}
-              className="p-4 rounded-xl glass-panel border border-primary/20 bg-primary/5 text-left flex flex-col justify-between h-28 relative overflow-hidden group transition-all"
-            >
-              <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 transition-all">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-xs text-zinc-200 font-black">Post Intel</p>
-                <p className="text-[10px] text-zinc-400 mt-0.5">Contribute & earn badges</p>
-              </div>
-            </button>
+                <button 
+                  onClick={() => setActiveTab('heatmap')}
+                  className="p-4 rounded-xl glass-panel text-left flex flex-col justify-between h-28 relative overflow-hidden group transition-all"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-all">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-300 font-bold">Campus Analytics</p>
+                    <p className="text-[10px] text-zinc-500 mt-0.5">Placement heatmaps</p>
+                  </div>
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  onClick={() => setActiveTab('feed')}
+                  className="p-4 rounded-xl glass-panel text-left flex flex-col justify-between h-28 relative overflow-hidden group transition-all"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-all">
+                    <Flame className="w-4 h-4 animate-pulse" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-300 font-bold">Senior Feed</p>
+                    <p className="text-[10px] text-zinc-500 mt-0.5">Explore {posts.length || 5} active leads</p>
+                  </div>
+                </button>
+
+                <button 
+                  onClick={() => setActiveTab('chat')}
+                  className="p-4 rounded-xl glass-panel text-left flex flex-col justify-between h-28 relative overflow-hidden group transition-all"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-all">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-300 font-bold">AI Mentor Chat</p>
+                    <p className="text-[10px] text-zinc-500 mt-0.5">Custom placement prep</p>
+                  </div>
+                </button>
+
+                <button 
+                  onClick={onAddPostClick}
+                  className="p-4 rounded-xl glass-panel border border-primary/20 bg-primary/5 text-left flex flex-col justify-between h-28 relative overflow-hidden group transition-all"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 transition-all">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-200 font-black">Post Intel</p>
+                    <p className="text-[10px] text-zinc-400 mt-0.5">Contribute & earn badges</p>
+                  </div>
+                </button>
+              </>
+            )}
           </div>
 
           {/* Trending Intelligence Feed */}

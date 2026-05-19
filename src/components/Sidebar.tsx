@@ -11,7 +11,8 @@ import {
   Sparkles,
   BookOpen,
   Network,
-  HelpCircle
+  HelpCircle,
+  ShieldCheck
 } from 'lucide-react';
 import { UserProfile } from '@/lib/types';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -25,7 +26,15 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: SidebarProps) {
-  const menuItems = [
+  const isAdmin = user.role === 'admin';
+  const menuItems = isAdmin ? [
+    { id: 'dashboard', label: 'Admin Dashboard', icon: LayoutDashboard },
+    { id: 'feed', label: 'Intel Moderation', icon: Rss },
+    { id: 'network', label: 'Institutional Map', icon: Network },
+    { id: 'admin-panel', label: 'Verification Hub', icon: ShieldCheck, badge: 'Admin' },
+    { id: 'heatmap', label: 'Campus Analytics', icon: TrendingUp },
+    { id: 'profile', label: 'Portal Settings', icon: User },
+  ] : [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'feed', label: 'Senior Intel Feed', icon: Rss },
     { id: 'network', label: 'Institutional Network', icon: Network },
