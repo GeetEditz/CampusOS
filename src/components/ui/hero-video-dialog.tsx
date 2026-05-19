@@ -1,6 +1,4 @@
-"use client"
-
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Play, X } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
 
@@ -24,6 +22,7 @@ interface HeroVideoProps {
   thumbnailSrc: string
   thumbnailAlt?: string
   className?: string
+  audioSrc?: string
 }
 
 const animationVariants = {
@@ -75,9 +74,37 @@ export function HeroVideoDialog({
   thumbnailSrc,
   thumbnailAlt = "Video thumbnail",
   className,
+  audioSrc,
 }: HeroVideoProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false)
   const selectedAnimation = animationVariants[animationStyle]
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  useEffect(() => {
+    if (audioSrc) {
+      audioRef.current = new Audio(audioSrc)
+      audioRef.current.loop = true
+    }
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+    }
+  }, [audioSrc])
+
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isVideoOpen) {
+        audioRef.current.currentTime = 0
+        audioRef.current.play().catch((err) => {
+          console.warn("Audio autoplay was blocked or failed:", err)
+        })
+      } else {
+        audioRef.current.pause()
+      }
+    }
+  }, [isVideoOpen])
 
   return (
     <div className={cn("relative", className)}>

@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 
 export default function VideoDemoPage() {
   // Replace this URL with your custom YouTube embed URL or Loom URL
-  const demoVideoUrl = "https://www.youtube.com/embed/3hccXiXX0u8"; 
+  const demoVideoUrl = "https://www.youtube.com/embed/plieCub8FN0"; 
 
   return (
     <div className="min-h-screen bg-[#030303] text-zinc-300 font-sans relative overflow-x-hidden selection:bg-primary/30 selection:text-white">
@@ -80,6 +80,7 @@ export default function VideoDemoPage() {
             thumbnailSrc="/THUMB.jpg"
             thumbnailAlt="CampusOS Dashboard Tour Thumbnail"
             className="w-full"
+            audioSrc="/audio.mp3"
           />
         </div>
 
