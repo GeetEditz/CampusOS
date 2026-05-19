@@ -32,6 +32,9 @@ import Leaderboard from '@/components/Leaderboard';
 import OpportunityHeatmap from '@/components/OpportunityHeatmap';
 import ProfileSettings from '@/components/ProfileSettings';
 import NetworkVisualization from '@/components/NetworkVisualization';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 export default function Home() {
   // Authentication & Onboarding States
@@ -374,17 +377,17 @@ export default function Home() {
     return (
       <div className="fixed inset-0 bg-black flex items-center justify-center p-4 overflow-hidden font-sans z-50">
         {/* Stellar Background */}
-        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-indigo-600/10 blur-[150px] pointer-events-none"></div>
-        <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] rounded-full bg-purple-600/10 blur-[150px] pointer-events-none"></div>
+        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-emerald-600/5 blur-[150px] pointer-events-none"></div>
+        <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] rounded-full bg-teal-600/5 blur-[150px] pointer-events-none"></div>
         
         {/* Multi-step Forms Panel */}
         <div className="w-full max-w-xl glass-panel border border-white/10 rounded-2xl p-8 shadow-2xl relative z-10 flex flex-col gap-6">
           
           {/* Logo Header */}
           <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-            <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-lg">
-              <BookOpen className="w-4 h-4 text-white" />
-              <div className="absolute -inset-1 rounded-xl bg-indigo-500/30 blur opacity-40"></div>
+            <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-primary text-primary-foreground shadow-lg">
+              <BookOpen className="w-4 h-4" />
+              <div className="absolute -inset-1 rounded-xl bg-primary/30 blur opacity-40"></div>
             </div>
             <div>
               <h1 className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
@@ -405,13 +408,14 @@ export default function Home() {
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Google / University SSO</label>
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() => {
                       setEmailInput('arjun.mehta@university.edu');
                       setAuthStep('onboarding');
                     }}
-                    className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-white text-black font-semibold text-xs transition-all hover:bg-zinc-200 active:scale-98"
+                    className="w-full flex items-center justify-center gap-2.5 h-10 rounded-xl bg-white text-black font-semibold text-xs transition-all hover:bg-zinc-200 active:scale-98"
                   >
                     {/* Google SVG logo */}
                     <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -421,16 +425,16 @@ export default function Home() {
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
                     <span>SSO Google Login</span>
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
                     type="button"
                     onClick={handleDemoLogin}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-xs transition-all hover:scale-101 active:scale-99 border border-indigo-500/30 shadow-md shadow-indigo-950/20 mt-2"
+                    className="w-full flex items-center justify-center gap-2 h-10 rounded-xl bg-primary text-primary-foreground font-black text-xs transition-all hover:scale-101 active:scale-99 border border-primary/30 shadow-md shadow-emerald-950/20 mt-2 hover:opacity-90"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" />
+                    <Sparkles className="w-3.5 h-3.5 animate-pulse" />
                     <span>One-Click Demo/Judge Portal Login</span>
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="flex items-center gap-3 my-1">
@@ -443,7 +447,7 @@ export default function Home() {
                   <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Institutional Email</label>
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
-                    <input 
+                    <Input 
                       type="email" 
                       value={emailInput}
                       onChange={e => setEmailInput(e.target.value)}
@@ -458,7 +462,7 @@ export default function Home() {
                   <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Portal Password</label>
                   <div className="relative">
                     <LockKeyhole className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
-                    <input 
+                    <Input 
                       type="password" 
                       value={passwordInput}
                       onChange={e => setPasswordInput(e.target.value)}
@@ -469,13 +473,13 @@ export default function Home() {
                 </div>
               </div>
 
-              <button
+              <Button
                 type="submit"
-                className="glow-btn w-full py-2.5 rounded-xl font-bold text-xs text-white flex items-center justify-center gap-2 hover:scale-101 transition-all"
+                className="glow-btn w-full h-10 rounded-xl font-bold text-xs text-white flex items-center justify-center gap-2 hover:scale-101 transition-all"
               >
                 <span>Access Network Portal</span>
                 <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              </Button>
             </form>
           )}
 
@@ -490,7 +494,7 @@ export default function Home() {
               <div className="flex flex-col gap-4 border-y border-white/5 py-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Full Name</label>
-                  <input 
+                  <Input 
                     type="text" 
                     value={onboardName}
                     onChange={e => setOnboardName(e.target.value)}
@@ -518,7 +522,7 @@ export default function Home() {
 
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">B.Tech Year</label>
-                    <input 
+                    <Input 
                       type="number" 
                       value={onboardYear}
                       onChange={e => setOnboardYear(Number(e.target.value))}
@@ -534,7 +538,7 @@ export default function Home() {
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Skills tags</label>
                   <div className="flex gap-2">
-                    <input 
+                    <Input 
                       type="text" 
                       value={newSkillInput}
                       onChange={e => setNewSkillInput(e.target.value)}
@@ -551,9 +555,9 @@ export default function Home() {
                   </div>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {onboardSkills.map(s => (
-                      <span key={s} className="text-[10px] px-2 py-0.5 rounded-lg bg-indigo-950/40 text-indigo-400 border border-indigo-500/20 font-bold">
+                      <Badge key={s} variant="secondary" className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/20 font-bold text-[10px] px-2 py-0.5 rounded-lg">
                         {s}
-                      </span>
+                      </Badge>
                     ))}
                   </div>
                 </div>
@@ -562,7 +566,7 @@ export default function Home() {
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Primary Interests</label>
                   <div className="flex gap-2">
-                    <input 
+                    <Input 
                       type="text" 
                       value={newInterestInput}
                       onChange={e => setNewInterestInput(e.target.value)}
@@ -579,22 +583,22 @@ export default function Home() {
                   </div>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {onboardInterests.map(i => (
-                      <span key={i} className="text-[10px] px-2 py-0.5 rounded-lg bg-purple-950/40 text-purple-400 border border-purple-500/20 font-bold">
+                      <Badge key={i} variant="secondary" className="bg-teal-950/40 text-teal-400 border border-teal-500/20 font-bold text-[10px] px-2 py-0.5 rounded-lg">
                         {i}
-                      </span>
+                      </Badge>
                     ))}
                   </div>
                 </div>
 
               </div>
 
-              <button
+              <Button
                 type="submit"
-                className="glow-btn w-full py-2.5 rounded-xl font-bold text-xs text-white flex items-center justify-center gap-2 hover:scale-101 transition-all"
+                className="glow-btn w-full h-10 rounded-xl font-bold text-xs text-white flex items-center justify-center gap-2 hover:scale-101 transition-all"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Initialize AI Operating System</span>
-              </button>
+              </Button>
             </form>
           )}
 
@@ -617,8 +621,8 @@ export default function Home() {
     <div className="min-h-screen bg-[#030303] text-zinc-300 flex font-sans relative overflow-hidden select-none">
       
       {/* Soft floating dynamic background gradients */}
-      <div className="absolute top-[-200px] left-[-200px] w-[500px] h-[500px] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none animate-float"></div>
-      <div className="absolute bottom-[-200px] right-[-200px] w-[500px] h-[500px] rounded-full bg-purple-500/5 blur-[120px] pointer-events-none animate-float" style={{animationDelay: '3s'}}></div>
+      <div className="absolute top-[-200px] left-[-200px] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px] pointer-events-none animate-float"></div>
+      <div className="absolute bottom-[-200px] right-[-200px] w-[500px] h-[500px] rounded-full bg-emerald-600/5 blur-[120px] pointer-events-none animate-float" style={{animationDelay: '3s'}}></div>
 
       {/* Side collapsible navigation */}
       <Sidebar 
