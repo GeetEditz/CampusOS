@@ -77,7 +77,7 @@ export default function DashboardHome({
   const visibilityScore = getVisibilityScore();
 
   const getVisibilityLevel = (score: number) => {
-    if (score >= 85) return { label: 'Elite Connection', color: 'text-indigo-400 bg-indigo-950/40 border-indigo-500/30' };
+    if (score >= 85) return { label: 'Elite Connection', color: 'text-primary bg-primary/10 border border-primary/20' };
     if (score >= 65) return { label: 'Active Explorer', color: 'text-cyan-400 bg-cyan-950/40 border-cyan-500/30' };
     return { label: 'Stealth Mode', color: 'text-zinc-500 bg-zinc-900 border-zinc-800' };
   };
@@ -86,7 +86,7 @@ export default function DashboardHome({
     switch (urgency) {
       case 'Critical': return 'bg-red-950/40 text-red-400 border border-red-500/30';
       case 'High': return 'bg-amber-950/40 text-amber-400 border border-amber-500/20';
-      case 'Medium': return 'bg-indigo-950/40 text-indigo-400 border border-indigo-500/20';
+      case 'Medium': return 'bg-primary/10 text-primary border border-primary/20';
       default: return 'bg-zinc-800/40 text-zinc-400 border border-zinc-700/30';
     }
   };
@@ -96,7 +96,7 @@ export default function DashboardHome({
       case 'Internships': return 'text-emerald-400 bg-emerald-950/30 border border-emerald-500/20';
       case 'Placements': return 'text-blue-400 bg-blue-950/30 border border-blue-500/20';
       case 'Scholarships': return 'text-pink-400 bg-pink-950/30 border border-pink-500/20';
-      case 'Faculty Tips': return 'text-purple-400 bg-purple-950/30 border border-purple-500/20';
+      case 'Faculty Tips': return 'text-emerald-400 bg-emerald-950/30 border border-emerald-500/20';
       default: return 'text-cyan-400 bg-cyan-950/30 border border-cyan-500/20';
     }
   };
@@ -105,16 +105,16 @@ export default function DashboardHome({
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto p-1 animate-fadeIn">
       
       {/* Dynamic Welcome Hero Banner */}
-      <div className="relative p-6 md:p-8 rounded-2xl overflow-hidden glass-panel border border-white/5 bg-gradient-to-r from-indigo-950/30 via-purple-950/20 to-black flex flex-col md:flex-row justify-between items-stretch gap-6 relative group transition-all duration-300">
-        <div className="absolute -right-20 -top-20 w-56 h-56 bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none group-hover:bg-indigo-500/10 transition-all duration-500"></div>
-        <div className="absolute -left-20 -bottom-20 w-56 h-56 bg-purple-500/5 rounded-full blur-[100px] pointer-events-none group-hover:bg-purple-500/10 transition-all duration-500"></div>
+      <div className="relative p-6 md:p-8 rounded-2xl overflow-hidden glass-panel border border-white/5 bg-gradient-to-r from-primary/10 via-primary/5 to-black flex flex-col md:flex-row justify-between items-stretch gap-6 relative group transition-all duration-300">
+        <div className="absolute -right-20 -top-20 w-56 h-56 bg-primary/5 rounded-full blur-[100px] pointer-events-none group-hover:bg-primary/10 transition-all duration-500"></div>
+        <div className="absolute -left-20 -bottom-20 w-56 h-56 bg-primary/5 rounded-full blur-[100px] pointer-events-none group-hover:bg-primary/10 transition-all duration-500"></div>
         
         {/* Core Profile Copy */}
         <div className="flex-1 flex flex-col justify-between z-10 gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] uppercase font-black tracking-wider text-indigo-400 px-2.5 py-0.5 rounded-full bg-indigo-950/60 border border-indigo-500/30 flex items-center gap-1.5 shadow-sm">
-                <Sparkles className="w-3 h-3 text-indigo-400 animate-spin" />
+              <span className="text-[9px] uppercase font-black tracking-wider text-primary px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 flex items-center gap-1.5 shadow-sm">
+                <Sparkles className="w-3 h-3 text-primary animate-spin" />
                 Active Institutional scanning
               </span>
             </div>
@@ -122,7 +122,7 @@ export default function DashboardHome({
               Welcome back, {user.name} 👋
             </h2>
             <p className="text-zinc-400 text-xs mt-1.5 max-w-xl leading-relaxed">
-              CampusOS scanned <span className="text-indigo-400 font-semibold">{posts.length || 5} hidden Senior Channels</span>. 
+              CampusOS scanned <span className="text-primary font-semibold">{posts.length || 5} hidden Senior Channels</span>. 
               Your active branch profile has <span className="text-emerald-400 font-semibold">{posts.filter(p => p.urgency === 'Critical' || p.urgency === 'High').length || 2} critical referral opportunities</span> active today.
             </p>
           </div>
@@ -147,7 +147,7 @@ export default function DashboardHome({
 
         {/* Futuristic circular Visibility Score HUD */}
         <div className="shrink-0 flex items-center gap-4 bg-white/2 border border-white/5 p-4 rounded-xl relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 to-transparent pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent pointer-events-none"></div>
           
           {/* Radial circular indicator */}
           <div className="relative w-16 h-16 flex items-center justify-center">
@@ -158,7 +158,7 @@ export default function DashboardHome({
                 cy="32" 
                 r="28" 
                 fill="transparent" 
-                stroke="url(#indigoGrad)" 
+                stroke="url(#primaryGrad)" 
                 strokeWidth="4" 
                 strokeDasharray={`${2 * Math.PI * 28}`}
                 strokeDashoffset={`${2 * Math.PI * 28 * (1 - visibilityScore / 100)}`}
@@ -166,9 +166,9 @@ export default function DashboardHome({
                 className="transition-all duration-1000 ease-out"
               />
               <defs>
-                <linearGradient id="indigoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#6366f1" />
-                  <stop offset="100%" stopColor="#ec4899" />
+                <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="var(--primary)" />
+                  <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.6" />
                 </linearGradient>
               </defs>
             </svg>
@@ -223,9 +223,9 @@ export default function DashboardHome({
 
             <button 
               onClick={onAddPostClick}
-              className="p-4 rounded-xl glass-panel border border-indigo-500/20 bg-indigo-950/10 text-left flex flex-col justify-between h-28 relative overflow-hidden group transition-all"
+              className="p-4 rounded-xl glass-panel border border-primary/20 bg-primary/5 text-left flex flex-col justify-between h-28 relative overflow-hidden group transition-all"
             >
-              <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-all">
+              <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 transition-all">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
@@ -244,7 +244,7 @@ export default function DashboardHome({
               </div>
               <button 
                 onClick={() => setActiveTab('feed')} 
-                className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5 transition-all font-semibold"
+                className="text-xs text-primary hover:text-primary-foreground flex items-center gap-0.5 transition-all font-semibold"
               >
                 <span>View all feed</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -265,7 +265,7 @@ export default function DashboardHome({
                       onClick={() => onSelectPost(post)}
                       className="p-4 rounded-xl glass-panel transition-all duration-200 cursor-pointer flex flex-col gap-3 border border-white/5 relative overflow-hidden group hover:translate-x-1"
                     >
-                      <div className="absolute -left-1 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-transparent opacity-0 group-hover:opacity-100 transition-all"></div>
+                      <div className="absolute -left-1 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-transparent opacity-0 group-hover:opacity-100 transition-all"></div>
                       
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex flex-col gap-1.5">
@@ -283,7 +283,7 @@ export default function DashboardHome({
                               {match}% Match
                             </span>
                           </div>
-                          <h4 className="text-sm font-bold text-zinc-100 group-hover:text-indigo-400 transition-colors leading-tight">
+                          <h4 className="text-sm font-bold text-zinc-100 group-hover:text-primary transition-colors leading-tight">
                             {post.title}
                           </h4>
                         </div>

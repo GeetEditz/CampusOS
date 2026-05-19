@@ -722,14 +722,14 @@ export default function Home() {
               <span className="flex items-center gap-2 shrink-0">🚀 <span className="text-zinc-200">12 AIML students</span> just applied to Google Summer of Code</span>
               <span className="flex items-center gap-2 shrink-0">⚡ New faculty prep challenge added by <span className="text-zinc-200">Dr. Verma</span> in AI/DL lab</span>
               <span className="flex items-center gap-2 shrink-0">🏆 <span className="text-emerald-400">4 CSE students</span> unlocked direct Microsoft referrals via Priya Sharma</span>
-              <span className="flex items-center gap-2 shrink-0">🔥 Campus Visibility Average increased to <span className="text-indigo-400">76%</span> today</span>
+              <span className="flex items-center gap-2 shrink-0">🔥 Campus Visibility Average increased to <span className="text-primary">76%</span> today</span>
               <span className="flex items-center gap-2 shrink-0">📢 Placement drive for Core Electronics scheduled for Friday morning</span>
               
               {/* Loop duplicates */}
               <span className="flex items-center gap-2 shrink-0">🚀 <span className="text-zinc-200">12 AIML students</span> just applied to Google Summer of Code</span>
               <span className="flex items-center gap-2 shrink-0">⚡ New faculty prep challenge added by <span className="text-zinc-200">Dr. Verma</span> in AI/DL lab</span>
               <span className="flex items-center gap-2 shrink-0">🏆 <span className="text-emerald-400">4 CSE students</span> unlocked direct Microsoft referrals via Priya Sharma</span>
-              <span className="flex items-center gap-2 shrink-0">🔥 Campus Visibility Average increased to <span className="text-indigo-400">76%</span> today</span>
+              <span className="flex items-center gap-2 shrink-0">🔥 Campus Visibility Average increased to <span className="text-primary">76%</span> today</span>
               <span className="flex items-center gap-2 shrink-0">📢 Placement drive for Core Electronics scheduled for Friday morning</span>
             </div>
           </div>
@@ -756,14 +756,14 @@ export default function Home() {
           <div className="w-full max-w-xl glass-panel border border-white/10 rounded-2xl p-5 flex flex-col gap-4 animate-scaleIn shadow-2xl relative">
             
             <div className="flex items-center gap-3 border-b border-white/5 pb-3">
-              <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />
+              <Sparkles className="w-5 h-5 text-primary animate-pulse" />
               <input 
                 type="text"
                 autoFocus
                 value={commandSearchQuery}
                 onChange={e => setCommandSearchQuery(e.target.value)}
                 placeholder="Search anything (e.g. PyTorch, google, referral, dashboard)..."
-                className="flex-grow bg-transparent text-sm text-white placeholder-zinc-500 border-none outline-none"
+                className="flex-grow bg-transparent text-sm text-white placeholder-zinc-500 border-none outline-none animate-fadeIn"
               />
               <button 
                 onClick={() => setIsCommandPaletteOpen(false)}
@@ -783,28 +783,28 @@ export default function Home() {
                   <div className="grid grid-cols-2 gap-2">
                     <button 
                       onClick={() => { setActiveTab('dashboard'); setSelectedFeedPost(null); setIsCommandPaletteOpen(false); }}
-                      className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-indigo-500/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center"
+                      className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
                     >
                       <span>Go to Dashboard</span>
                       <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + d</span>
                     </button>
                     <button 
                       onClick={() => { setActiveTab('feed'); setSelectedFeedPost(null); setIsCommandPaletteOpen(false); }}
-                      className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-indigo-500/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center"
+                      className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
                     >
                       <span>Go to Intel Feed</span>
                       <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + f</span>
                     </button>
                     <button 
                       onClick={() => { setActiveTab('network'); setIsCommandPaletteOpen(false); }}
-                      className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-indigo-500/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center"
+                      className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
                     >
                       <span>Go to Network Map</span>
                       <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + n</span>
                     </button>
                     <button 
                       onClick={() => { setActiveTab('ai-rec'); setIsCommandPaletteOpen(false); }}
-                      className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-indigo-500/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center"
+                      className="p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-primary/25 hover:bg-white/4 text-left text-xs font-semibold text-zinc-200 transition-all flex justify-between items-center cursor-pointer"
                     >
                       <span>Go to AI Roadmaps</span>
                       <span className="text-[9px] text-zinc-500 font-bold bg-zinc-950 px-1.5 py-0.25 rounded border border-zinc-900">g + a</span>
@@ -827,10 +827,10 @@ export default function Home() {
                         setActiveTab('feed');
                         setIsCommandPaletteOpen(false);
                       }}
-                      className="p-3 rounded-xl bg-white/2 border border-white/5 hover:border-indigo-500/30 hover:bg-white/4 transition-all cursor-pointer flex justify-between items-center gap-4"
+                      className="p-3 rounded-xl bg-white/2 border border-white/5 hover:border-primary/30 hover:bg-white/4 transition-all cursor-pointer flex justify-between items-center gap-4 animate-fadeIn"
                     >
                       <div className="flex flex-col gap-1">
-                        <span className="text-[9px] font-black uppercase text-indigo-400">{post.category}</span>
+                        <span className="text-[9px] font-black uppercase text-primary">{post.category}</span>
                         <h4 className="text-xs font-bold text-white line-clamp-1">{post.title}</h4>
                       </div>
                       <span className="text-[9px] text-emerald-400 font-extrabold px-1.5 py-0.25 rounded bg-emerald-950/20 border border-emerald-500/10 shrink-0">
@@ -893,7 +893,7 @@ export default function Home() {
 
             <button 
               onClick={() => setShowShortcutHelper(false)}
-              className="w-full mt-2 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-xs text-white transition-all hover:scale-101"
+              className="w-full mt-2 py-2 rounded-xl bg-primary hover:bg-primary/90 font-bold text-xs text-white transition-all hover:scale-101 cursor-pointer"
             >
               Understand & Close
             </button>
